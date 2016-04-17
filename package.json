@@ -22,5 +22,9 @@
     "vinyl-source-stream": "^1.0.0"
   },
   "author": "Christoph Burgdorf <christoph@thoughtram.io>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "expect": "^1.16.0",
+    "redux": "^3.4.0"
+  }
 }
