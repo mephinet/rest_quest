@@ -1,6 +1,7 @@
-import {Person} from './model/Person';
 import expect from 'expect';
 import {createStore} from 'redux';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 const counter = (state = 0, action) => {
 
@@ -26,16 +27,28 @@ console.log('Tests passed!');
 
 const store = createStore(counter);
 
+
+class Counter extends React.Component {
+    render() {
+        return (<div>
+                  <h1>{this.props.value}</h1>
+                  <button onClick={this.props.onIncrement}>+</button>
+                  <button onClick={this.props.onDecrement}>-</button>
+                </div>
+               )
+    }
+}
+
+
 const render = () => {
-    document.body.innerHTML = store.getState();
+    ReactDOM.render(
+            <Counter value={store.getState()}
+               onIncrement={() => store.dispatch({type: 'INCREMENT'})}
+               onDecrement={() => store.dispatch({type: 'DECREMENT'})}
+            />,
+        document.getElementById('root')
+    );
 };
 
 store.subscribe(render);
 render();
-
-document.addEventListener('click', () => {store.dispatch({type: 'INCREMENT'})});
-
-global.app = function () {
-    var christoph = new Person('Christoph', 'Burgdorf');
-    console.log(christoph.fullName);
-};

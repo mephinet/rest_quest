@@ -30,7 +30,7 @@ function getBundler() {
 
 function bundle() {
   return getBundler()
-    .transform(babelify)
+    .transform(babelify, {presets: ['es2015', 'react']})
     .bundle()
     .on('error', function(err) { console.log('Error: ' + err.message); })
     .pipe(source(config.outputFile))
