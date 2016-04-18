@@ -1,10 +1,14 @@
-const counter = (state = 0, action) => {
+import {List} from 'immutable';
+
+const counter = (state = List(), action) => {
 
     switch (action && action.type) {
     case 'INCREMENT':
-        return state + 1;
+        return state.update(action.id, v => v + 1);
     case 'DECREMENT':
-        return state - 1;
+        return state.update(action.id, v => v - 1);
+    case 'ADD_COUNTER':
+        return state.push(0);
     default:
         return state;
     }

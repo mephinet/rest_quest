@@ -11,6 +11,7 @@
     "expect": "^1.16.0",
     "gulp": "^3.9.0",
     "gulp-rename": "^1.2.0",
+    "immutable": "^3.8.0",
     "lodash": "^4.11.0",
     "react": "^15.0.1",
     "react-dom": "^15.0.1",
@@ -19,10 +20,10 @@
     "vinyl-source-stream": "^1.0.0",
     "watchify": "^3.7.0"
   },
-    "scripts": {
-        "build": "gulp build",
-        "watch": "gulp watch",
-        "test": "babel-node --presets es2015,react src/test.js"
-    },
+  "scripts": {
+    "build": "gulp build",
+    "watch": "gulp watch",
+    "test": "babel-node --presets es2015,react src/test.js"
+  },
   "license": "MIT"
 }
