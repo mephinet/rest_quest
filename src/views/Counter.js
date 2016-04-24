@@ -1,14 +1,18 @@
 import React from 'react';
 
-class Counter extends React.Component {
-    render() {
-        return (<div>
-                  <h1>Counter {this.props.id}: {this.props.value}</h1>
-                  <button onClick={this.props.onIncrement}>+</button>
-                  <button onClick={this.props.onDecrement}>-</button>
-                </div>
-               )
-    }
-}
+const Counter = ({id, value, onIncrement, onDecrement}) => {
+    return (<div>
+            <h1>Counter {id}: {value}</h1>
+            <button onClick={onIncrement}>+</button>
+            <button onClick={onDecrement}>-</button>
+            </div>);
+};
+
+Counter.propTypes = {
+    id: React.PropTypes.number.isRequired,
+    value: React.PropTypes.number.isRequired,
+    onIncrement: React.PropTypes.func,
+    onDecrement: React.PropTypes.func
+};
 
 export default Counter;

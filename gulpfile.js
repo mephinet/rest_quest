@@ -7,6 +7,7 @@ var rimraf = require('rimraf');
 var source = require('vinyl-source-stream');
 var _ = require('lodash');
 var browserSync = require('browser-sync');
+var eslintify = require('eslintify');
 var reload = browserSync.reload;
 
 var config = {
@@ -29,7 +30,8 @@ function getBundler() {
 };
 
 function bundle() {
-  return getBundler()
+    return getBundler()
+    .transform(eslintify)
     .transform(babelify, {presets: ['es2015', 'react']})
     .bundle()
     .on('error', function(err) { console.log('Error: ' + err.message); })

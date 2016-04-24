@@ -6,9 +6,11 @@ import counter from './counter';
 import order from './order';
 import {Map} from 'immutable';
 
-const app = (state = Map({reverse: false}), action)  => {
-    return order(state, action)
-        .set('counters', counter(state.get('counters'), action));
+const app = (state = Map(), action)  => {
+    return Map({
+        reverse: order(state.get('reverse'), action),
+        counters: counter(state.get('counters'), action)
+    });
 };
 
 const store = createStore(app);
@@ -17,9 +19,9 @@ const render = () => {
     console.log(store.getState().toJS());
     ReactDOM.render(
             <Counters
-               values={store.getState().get("counters")}
-               reverse={store.getState().get("reverse")}
-               addCounter={() => store.dispatch({type: 'ADD_COUNTER'})}
+               values={store.getState().get('counters')}
+               reverse={store.getState().get('reverse')}
+               onAddCounter={() => store.dispatch({type: 'ADD_COUNTER'})}
                onIncrement={i => store.dispatch({type: 'INCREMENT', id: i})}
                onDecrement={i => store.dispatch({type: 'DECREMENT', id: i})}
                onToggleReverse={() => store.dispatch({type: 'REVERSE'})}
