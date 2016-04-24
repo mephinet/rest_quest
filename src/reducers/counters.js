@@ -1,6 +1,6 @@
 import {List} from 'immutable';
 
-const counter = (state = List(), action) => {
+const counters = (state = List(), action) => {
 
     switch (action && action.type) {
     case 'INCREMENT':
@@ -14,4 +14,4 @@ const counter = (state = List(), action) => {
     }
 };
 
-export default counter;
+export default counters;

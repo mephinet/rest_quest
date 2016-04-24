@@ -1,17 +1,17 @@
-import {createStore} from 'redux';
+import { createStore } from 'redux';
+import { combineReducers } from 'redux-immutable';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Counters from './views/Counters';
-import counter from './counter';
-import order from './order';
-import {Map} from 'immutable';
 
-const app = (state = Map(), action)  => {
-    return Map({
-        reverse: order(state.get('reverse'), action),
-        counters: counter(state.get('counters'), action)
-    });
-};
+import Counters from './views/Counters';
+
+import counters from './reducers/counters';
+import order from './reducers/order';
+
+const app = combineReducers({
+    reverse: order,
+    counters
+});
 
 const store = createStore(app);
 

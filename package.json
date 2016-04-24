@@ -20,6 +20,7 @@
     "react-dom": "^15.0.1",
     "react-immutable-proptypes": "^1.7.1",
     "redux": "^3.4.0",
+    "redux-immutable": "^3.0.6",
     "rimraf": "^2.2.8",
     "vinyl-source-stream": "^1.0.0",
     "watchify": "^3.7.0"
