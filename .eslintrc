@@ -23,10 +23,6 @@
             2,
             "always"
         ],
-        "quotes": [
-            1,
-            "single"
-        ],
         "no-console": 0
     }
 }

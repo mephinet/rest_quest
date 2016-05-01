@@ -10,45 +10,69 @@ var browserSync = require('browser-sync');
 var eslintify = require('eslintify');
 var reload = browserSync.reload;
 
-var config = {
-  entryFile: './src/app.js',
-  outputDir: './dist/',
-  outputFile: 'app.js'
+var clientConfig = {
+    entryFile: './src/client.js',
+    outputDir: './dist/',
+    outputFile: 'client.js',
+    presets: ['es2015']
 };
+
+var webConfig = {
+    entryFile: './src/web.js',
+    outputDir: './dist/',
+    outputFile: 'web.js',
+    presets: ['es2015']
+}
 
 // clean the output directory
 gulp.task('clean', function(cb){
-    rimraf(config.outputDir, cb);
+    rimraf(clientConfig.outputDir, cb);
 });
 
-var bundler;
-function getBundler() {
-  if (!bundler) {
-    bundler = watchify(browserify(config.entryFile, _.extend({ debug: true }, watchify.args)));
+var clientBundler;
+function getClientBundler() {
+  if (!clientBundler) {
+      clientBundler = watchify(browserify(clientConfig.entryFile, _.extend({ debug: true, builtins: false, commondir: false, browserField: false, bundleExternal: false }, watchify.args)));
   }
-  return bundler;
+  return clientBundler;
 };
 
-function bundle() {
-    return getBundler()
-    .transform(eslintify)
-    .transform(babelify, {presets: ['es2015', 'react']})
-    .bundle()
-    .on('error', function(err) { console.log('Error: ' + err.message); })
-    .pipe(source(config.outputFile))
-    .pipe(gulp.dest(config.outputDir))
-    .pipe(reload({ stream: true }));
+
+var webBundler;
+function getWebBundler() {
+    if(!webBundler) {
+        webBundler = watchify(browserify(webConfig.entryFile, _.extend({ debug: true }, watchify.args)));
+    }
+    return webBundler;
 }
 
-gulp.task('build-persistent', ['clean'], function() {
-  return bundle();
+function bundle(bundler, config) {
+    return bundler
+        .transform(eslintify)
+        .transform(babelify, {presets: config.presets})
+        .bundle()
+        .on('error', function(err) {
+            console.log('Error: ' + err.message);
+            process.exit(1);
+        })
+        .pipe(source(config.outputFile))
+        .pipe(gulp.dest(config.outputDir))
+        .pipe(reload({ stream: true }));
+}
+
+gulp.task('client', [], function() {
+    return bundle(getClientBundler(), clientConfig);
 });
 
-gulp.task('build', ['build-persistent'], function() {
+gulp.task('web', [], function() {
+    return bundle(getWebBundler(), webConfig);
+})
+
+gulp.task('build', ['client', 'web'], function() {
   process.exit(0);
 });
 
-gulp.task('watch', ['build-persistent'], function() {
+gulp.task('watch', ['client', 'web'], function() {
 
   browserSync({
     server: {
@@ -56,8 +80,12 @@ gulp.task('watch', ['build-persistent'], function() {
     }
   });
 
-  getBundler().on('update', function() {
-    gulp.start('build-persistent')
+  getClientBundler().on('update', function() {
+    gulp.start('client')
+  });
+
+  getWebBundler().on('update', function() {
+    gulp.start('web')
   });
 });
 
