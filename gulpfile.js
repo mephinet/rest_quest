@@ -5,23 +5,27 @@ var watchify = require('watchify');
 var babelify = require('babelify');
 var rimraf = require('rimraf');
 var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 var _ = require('lodash');
 var browserSync = require('browser-sync');
 var eslintify = require('eslintify');
+var uglify = require('gulp-uglify');
 var reload = browserSync.reload;
 
 var clientConfig = {
     entryFile: './src/client.js',
     outputDir: './dist/',
     outputFile: 'client.js',
-    presets: ['es2015']
+    presets: ['es2015'],
+    uglify: false
 };
 
 var webConfig = {
     entryFile: './src/web.js',
     outputDir: './dist/',
     outputFile: 'web.js',
-    presets: ['es2015']
+    presets: ['es2015'],
+    uglify: true
 }
 
 // clean the output directory
@@ -47,7 +51,7 @@ function getWebBundler() {
 }
 
 function bundle(bundler, config) {
-    return bundler
+    var pipeline = bundler
         .transform(eslintify)
         .transform(babelify, {presets: config.presets})
         .bundle()
@@ -55,9 +59,18 @@ function bundle(bundler, config) {
             console.log('Error: ' + err.message);
             process.exit(1);
         })
-        .pipe(source(config.outputFile))
+        .pipe(source(config.outputFile));
+
+    if (config.uglify) {
+    pipeline = pipeline
+        .pipe(buffer())
+        .pipe(uglify());
+    }
+
+    pipeline = pipeline
         .pipe(gulp.dest(config.outputDir))
         .pipe(reload({ stream: true }));
+    return pipeline;
 }
 
 gulp.task('client', [], function() {
