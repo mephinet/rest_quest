@@ -1,9 +1,11 @@
 import React from 'react';
 //import ImmutablePropTypes from 'react-immutable-proptypes';
 
+import classNames from 'classnames';
+
 const Cell = ({type, myCell}) => {
-    const cn = myCell ? 'my' : undefined;
-    
+    const cn = classNames({my: myCell});
+
     return <td className={cn}>{type}</td>;
 };
 
