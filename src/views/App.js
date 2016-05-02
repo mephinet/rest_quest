@@ -5,10 +5,10 @@ import Header from './Header';
 import Map from './Map';
 
 const App = ({map, config}) => {
+    let m = map ? <Map map={map.get('qm')} /> : null;
     return (<div>
             <Header username={config.get('username')} />
-            <Map map={map.get('qm')} />
-            <span>{JSON.stringify(map)}</span>
+            {m}
             </div>);
 };
 

@@ -12,7 +12,6 @@ const socket = io(
 
 socket.on('state',
           state => {
-              console.log(state);
               render(<App map={fromJS(state.map)} config={fromJS(state.config)} />,
                      document.getElementById('root')
                     );

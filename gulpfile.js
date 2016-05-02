@@ -12,6 +12,9 @@ var browserSync = require('browser-sync');
 var eslintify = require('eslintify');
 var uglify = require('gulp-uglify');
 var eslint = require('gulp-eslint');
+var stylus = require('gulp-stylus');
+var minify = require('gulp-minify-css');
+
 var reload = browserSync.reload;
 
 
@@ -23,9 +26,10 @@ var clientConfig = {
 };
 
 var webConfig = {
-    entryFile: './src/web.js',
+    entryJsFile: './src/web.js',
+    entryStylFile: './src/web.styl',
     outputDir: './dist/',
-    outputFile: 'web.js',
+    outputJsFile: 'web.js',
     presets: ['es2015', 'react']
 }
 
@@ -40,7 +44,7 @@ gulp.task('clean', function(cb){
 var webBundler;
 function getWebBundler() {
     if(!webBundler) {
-        webBundler = watchify(browserify(webConfig.entryFile, _.extend({ debug: true }, watchify.args)));
+        webBundler = watchify(browserify(webConfig.entryJsFile, _.extend({ debug: true }, watchify.args)));
     }
     return webBundler;
 }
@@ -53,20 +57,42 @@ gulp.task('client', [], function() {
         .pipe(gulp.dest(clientConfig.outputDir));
 });
 
-gulp.task('web', [], function() {
+gulp.task('stylus', [], function () {
+    var pipeline = gulp.src(webConfig.entryStylFile)
+        .pipe(stylus());
+
+    if (process.env.NODE_ENV === 'production') {
+        pipeline = pipeline
+            .pipe(minify());
+    }
+
+    return pipeline
+        .pipe(gulp.dest(webConfig.outputDir))
+        .pipe(reload({ stream: true }));
+});
+
+gulp.task('web', ['stylus'], function() {
     var bundler = getWebBundler();
-    return bundler
+    var pipeline = bundler
         .transform(eslintify)
         .transform(babelify, {presets: webConfig.presets})
         .bundle()
         .on('error', function(err) {
             console.log('Error: ' + err.message);
         })
-        .pipe(source(webConfig.outputFile))
-        // .pipe(buffer())
-        // .pipe(uglify())
+        .pipe(source(webConfig.outputJsFile));
+
+    if (process.env.NODE_ENV === 'production') {
+        pipeline = pipeline
+        .pipe(buffer())
+        .pipe(uglify());
+    }
+
+    pipeline = pipeline
         .pipe(gulp.dest(webConfig.outputDir))
         .pipe(reload({ stream: true }));
+
+    return pipeline;
 })
 
 gulp.task('build', ['client', 'web'], function() {
@@ -86,6 +112,8 @@ gulp.task('watch', ['client', 'web'], function() {
     });
 
     gulp.watch(clientConfig.entryFile, ['client']);
+
+    gulp.watch('./src/**/*.styl', ['stylus']);
 });
 
 // WEB SERVER
