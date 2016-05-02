@@ -34,6 +34,9 @@ const main = () => {
     }
     if (program.server) {
         const io = startServer();
+        io.on('connection',
+              socket => socket.emit('state', store.getState().toJS())
+             );
         store.subscribe(() => {
             io.emit('state', store.getState().toJS());
         });

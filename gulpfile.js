@@ -26,7 +26,7 @@ var webConfig = {
     entryFile: './src/web.js',
     outputDir: './dist/',
     outputFile: 'web.js',
-    presets: ['es2015']
+    presets: ['es2015', 'react']
 }
 
 // clean the output directory
@@ -49,7 +49,6 @@ gulp.task('client', [], function() {
     return gulp.src(clientConfig.entryFile)
         .pipe(eslint())
         .pipe(eslint.format())
-        .pipe(eslint.failAfterError())
         .pipe(babel({presets: clientConfig.presets, plugins: clientConfig.plugins}))
         .pipe(gulp.dest(clientConfig.outputDir));
 });
@@ -62,11 +61,10 @@ gulp.task('web', [], function() {
         .bundle()
         .on('error', function(err) {
             console.log('Error: ' + err.message);
-            process.exit(1);
         })
         .pipe(source(webConfig.outputFile))
-        .pipe(buffer())
-        .pipe(uglify())
+        // .pipe(buffer())
+        // .pipe(uglify())
         .pipe(gulp.dest(webConfig.outputDir))
         .pipe(reload({ stream: true }));
 })
