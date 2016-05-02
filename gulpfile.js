@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var fs = require('fs');
 var browserify = require('browserify');
 var watchify = require('watchify');
+var babel = require("gulp-babel");
 var babelify = require('babelify');
 var rimraf = require('rimraf');
 var source = require('vinyl-source-stream');
@@ -10,36 +11,30 @@ var _ = require('lodash');
 var browserSync = require('browser-sync');
 var eslintify = require('eslintify');
 var uglify = require('gulp-uglify');
+var eslint = require('gulp-eslint');
 var reload = browserSync.reload;
 
+
 var clientConfig = {
-    entryFile: './src/client.js',
-    outputDir: './dist/',
+    entryFile: ['./src/**/*.js'],
+    outputDir: './build/',
     outputFile: 'client.js',
-    presets: ['es2015'],
-    uglify: false
+    presets: ['es2015', 'react']
 };
 
 var webConfig = {
     entryFile: './src/web.js',
     outputDir: './dist/',
     outputFile: 'web.js',
-    presets: ['es2015'],
-    uglify: true
+    presets: ['es2015']
 }
 
 // clean the output directory
 gulp.task('clean', function(cb){
-    rimraf(clientConfig.outputDir, cb);
+    rimraf(clientConfig.outputDir, function () {
+        rimraf(webConfig.outputDir, cb);
+    });
 });
-
-var clientBundler;
-function getClientBundler() {
-  if (!clientBundler) {
-      clientBundler = watchify(browserify(clientConfig.entryFile, _.extend({ debug: true, builtins: false, commondir: false, browserField: false, bundleExternal: false }, watchify.args)));
-  }
-  return clientBundler;
-};
 
 
 var webBundler;
@@ -50,35 +45,30 @@ function getWebBundler() {
     return webBundler;
 }
 
-function bundle(bundler, config) {
-    var pipeline = bundler
+gulp.task('client', [], function() {
+    return gulp.src(clientConfig.entryFile)
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError())
+        .pipe(babel({presets: clientConfig.presets, plugins: clientConfig.plugins}))
+        .pipe(gulp.dest(clientConfig.outputDir));
+});
+
+gulp.task('web', [], function() {
+    var bundler = getWebBundler();
+    return bundler
         .transform(eslintify)
-        .transform(babelify, {presets: config.presets})
+        .transform(babelify, {presets: webConfig.presets})
         .bundle()
         .on('error', function(err) {
             console.log('Error: ' + err.message);
             process.exit(1);
         })
-        .pipe(source(config.outputFile));
-
-    if (config.uglify) {
-    pipeline = pipeline
+        .pipe(source(webConfig.outputFile))
         .pipe(buffer())
-        .pipe(uglify());
-    }
-
-    pipeline = pipeline
-        .pipe(gulp.dest(config.outputDir))
+        .pipe(uglify())
+        .pipe(gulp.dest(webConfig.outputDir))
         .pipe(reload({ stream: true }));
-    return pipeline;
-}
-
-gulp.task('client', [], function() {
-    return bundle(getClientBundler(), clientConfig);
-});
-
-gulp.task('web', [], function() {
-    return bundle(getWebBundler(), webConfig);
 })
 
 gulp.task('build', ['client', 'web'], function() {
@@ -87,26 +77,24 @@ gulp.task('build', ['client', 'web'], function() {
 
 gulp.task('watch', ['client', 'web'], function() {
 
-  browserSync({
-    server: {
-      baseDir: './'
-    }
-  });
+    browserSync({
+        server: {
+            baseDir: './'
+        }
+    });
 
-  getClientBundler().on('update', function() {
-    gulp.start('client')
-  });
+    getWebBundler().on('update', function() {
+        gulp.start('web')
+    });
 
-  getWebBundler().on('update', function() {
-    gulp.start('web')
-  });
+    gulp.watch(clientConfig.entryFile, ['client']);
 });
 
 // WEB SERVER
 gulp.task('serve', function () {
-  browserSync({
-    server: {
-      baseDir: './'
-    }
-  });
+    browserSync({
+        server: {
+            baseDir: './'
+        }
+    });
 });
