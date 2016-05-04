@@ -4,6 +4,8 @@ import QuestMap from '../components/QuestMap';
 
 import * as events from '../events';
 
+import phase from './phase';
+
 const map = (state = Map({qm: new QuestMap()}), action) => {
     switch (action.type) {
 
@@ -12,7 +14,11 @@ const map = (state = Map({qm: new QuestMap()}), action) => {
 
         const qm = state.get('qm');
         qm.processUpdateFromServer(action.view.view);
-        return state.set('qm', qm);
+        state = state.set('qm', qm);
+
+        state = state.set('phase', phase(state.get('phase'), action));
+
+        return state;
     }
 
     default:
