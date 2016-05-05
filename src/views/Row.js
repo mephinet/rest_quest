@@ -12,6 +12,7 @@ const Row = ({cells, myCell}) => {
                   moveCost={c.get('moveCost')}
                   cumulatedCost={c.get('cumulatedCost')}
                   route={c.get('route')}
+                  visibilityGain={c.get('visibilityGain')}
                   myCell={pos === myCell}
             />);
 

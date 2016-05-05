@@ -3,14 +3,15 @@ import React from 'react';
 
 import classNames from 'classnames';
 
-const Cell = ({type, myCell, myCastle, enemyCastle, moveCost, cumulatedCost, route}) => {
+const Cell = ({type, myCell, myCastle, enemyCastle, moveCost, cumulatedCost, route, visibilityGain}) => {
     const cn = classNames(type, {my: myCell, myCastle, enemyCastle});
 
     return (<td className={cn}>
-            <span className="type">{type}</span>
-            <span className="moveCost">mc:{moveCost}</span>
-            <span className="cumulatedCost">cc:{cumulatedCost}</span>
-            <span className="route">r:{route}</span>
+            <span className="details type">{type}</span>
+            <span className="details moveCost">mc:{moveCost}</span>
+            <span className="details cumulatedCost">cc:{cumulatedCost}</span>
+            <span className="details route">r:{route}</span>
+            <span className="details visibilityGain">vg:{visibilityGain}</span>
             </td>);
 };
 
@@ -21,6 +22,7 @@ Cell.propTypes = {
     enemyCastle: React.PropTypes.bool,
     moveCost: React.PropTypes.number,
     cumulatedCost: React.PropTypes.number,
+    visibilityGain: React.PropTypes.number,
     route: React.PropTypes.string
 };
 

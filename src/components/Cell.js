@@ -2,6 +2,8 @@ import store from '../store';
 
 export const max = 100000;
 
+const range = (start, end) => [...Array(end - start + 1)].map((_, i) => start + i);
+
 export class Cell {
 
     constructor ({data, position}) {
@@ -16,6 +18,7 @@ export class Cell {
         this.moveCost = this.calcMoveCost(this.type, this.enemyCastle);
         this.cumulatedCost = undefined;
         this.route = undefined;
+        this.visibilityGain = undefined;
     }
 
     calcMoveCost(type, enemyCastle) {
@@ -24,13 +27,37 @@ export class Cell {
         }
 
         switch (type) {
-        case 'mountain':
-            return 2;
         case 'water':
             return max;
+        case 'mountain':
+            return 2;
         default:
             return 1;
         }
+    }
+
+    calcVisibilityGain(rows) {
+        const viewOneDir = {forest: 1, grass: 2, mountain: 3, water: 0}[this.type];
+
+        const rowIds = range(this.position.y - viewOneDir, this.position.y + viewOneDir);
+        const colIds = range(this.position.x - viewOneDir, this.position.x + viewOneDir);
+
+        let gain = 0;
+        rowIds.map(rowId => {
+            if ((rowId < 0) || (rowId > rows.size-1)) {
+                gain += colIds.length;
+            } else {
+                const row = rows.get(rowId);
+                colIds.map(colId => {
+                    if ((colId < 0) || (colId > row.size-1)) {
+                        gain += 1;
+                    } else {
+                        gain += !row.has(colId);
+                    }
+                });
+            }
+        });
+        return this.visibilityGain = gain;
     }
 
     setCumulatedCost(cost) {

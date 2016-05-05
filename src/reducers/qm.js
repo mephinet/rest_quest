@@ -53,6 +53,7 @@ const fixup = rows => {
         let minNeighbourCC = 10*max;
         Object.keys(directNeighbours).map(d => {
             const cc = directNeighbours[d] !== undefined ? directNeighbours[d].cumulatedCost : 10*max;
+            // XXX if there are multiple equally good routes, make a clever choice here
             if (minNeighbourCC > cc) {
                 minNeighbourDir = d;
                 minNeighbourCC = cc;
@@ -93,6 +94,8 @@ const qm = (state = new Map({rows: null, myPos: undefined}), action) => {
         do {
             console.log('Performing fixup cycle...');
         } while (fixup(rows));
+
+        rows.map(row => row.map(c => c.calcVisibilityGain(rows)));
 
         return state.set('rows', rows).set('myPos', [((data[0].length-1)/2), ((data.length-1)/2)]);
     }
