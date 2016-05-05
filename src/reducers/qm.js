@@ -81,6 +81,7 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
     let myCastlePos = null;
     switch(action.type) {
     case events.UPDATE_VIEW: {
+        console.time('qm.UPDATE_VIEW');
         const data = action.view.view;
         const rows = List(data.map((row, y) => {
             return List(row.map((column, x) => {
@@ -119,8 +120,10 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
             }
         }));
 
+        console.timeEnd('qm.UPDATE_VIEW');
+
         return state.set('rows', rows)
-            .set('myPos', new List([((data[0].length-1)/2), ((data.length-1)/2)]))
+            .set('myPos', new Map(currentCell.position))
             .set('strategy', new Map({highscore: highscore, route: highscoreCell.route}));
     }
     default:

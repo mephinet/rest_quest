@@ -115,6 +115,10 @@ export class Cell {
         return row.get(this.position.x);
     }
 
+    neighbour(dir, rows) {
+        return ({w: this.neighbourWest, n: this.neighbourNorth, e: this.neighbourEast, s: this.neighbourSouth}[dir]).call(this, rows);
+    }
+
     directNeighbours(rows) {
         return {
             w: this.neighbourWest(rows),

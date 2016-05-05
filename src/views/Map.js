@@ -14,7 +14,7 @@ const Map = ({map}) => {
     const rows = map.get('rows').map(
         (r, pos) =>
             <Row key={pos} cells={r}
-                 myCell={(myPos && pos === myPos.get(1)) ? myPos.get(0) : undefined} />
+                 myCell={(myPos && pos === myPos.get('y')) ? myPos.get('x') : undefined} />
     );
     return (<table>
             <tbody>

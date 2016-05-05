@@ -25,12 +25,16 @@ if (program.verbose) {
     });
 }
 
-store.dispatch({type: events.UPDATE_CONFIG, config: {username: program.username}});
-
 const main = () => {
     let url = 'http://' + program.host + ':' + program.port;
+
+    store.dispatch({type: events.UPDATE_CONFIG,
+                    config: {username: program.username,
+                             baseurl: url
+                            }});
+
     if (program.reset) {
-        reset(url);
+        reset();
     }
     if (program.server) {
         const io = startServer();
@@ -41,7 +45,7 @@ const main = () => {
             io.emit('state', store.getState().toJS());
         });
     }
-    login(url, program.username);
+    login();
 };
 
 

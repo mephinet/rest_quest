@@ -4,10 +4,12 @@ import createLogger from 'redux-logger';
 
 import map from './reducers/map';
 import config from './reducers/config';
+import movement from './reducers/movement';
 
 const app = combineReducers({
     map,
-    config
+    config,
+    movement
 });
 
 const logger = createLogger({colors: false});

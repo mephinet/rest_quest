@@ -5,7 +5,7 @@ import * as events from '../events';
 const config = (state = Map(), action) => {
     switch (action.type) {
     case events.UPDATE_CONFIG:
-        return state.set('username', action.config.username);
+        return state.merge(action.config);
     default:
         return state;
     }
