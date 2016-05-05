@@ -2,11 +2,12 @@ import React from 'react';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 
 import Cell from './Cell';
+import UnknownCell from './UnknownCell';
 
 const Row = ({cells, myCell}) => {
     const content = cells.map(
         (c, pos) =>
-            <Cell key={pos} type={c.get('type')}
+            c ? <Cell key={pos} type={c.get('type')}
                   myCastle={c.get('myCastle')}
                   enemyCastle={c.get('enemyCastle')}
                   treasure={c.get('treasure')}
@@ -16,7 +17,9 @@ const Row = ({cells, myCell}) => {
                   visibilityGain={c.get('visibilityGain')}
                   score={c.get('score')}
                   myCell={pos === myCell}
-            />);
+            />
+          : <UnknownCell />
+    );
 
     return (<tr>
             {content}

@@ -52,25 +52,27 @@ const reverse = dir => { return {n: 's', s: 'n', e: 'w', w: 'e'}[dir]; };
 
 const fixup = rows => {
     let modified = 0;
-    rows.map(row => row.map(c => {
-        const directNeighbours = c.directNeighbours(rows);
-        let minNeighbourDir;
-        let minNeighbourCC = 10*max;
-        Object.keys(directNeighbours).map(d => {
-            const cc = directNeighbours[d] !== undefined ? directNeighbours[d].cumulatedCost : 10*max;
-            // XXX if there are multiple equally good routes, make a clever choice here
-            if (minNeighbourCC > cc) {
-                minNeighbourDir = d;
-                minNeighbourCC = cc;
+    rows.forEach(row => row.forEach(c => {
+        if (c !== undefined) {
+            const directNeighbours = c.directNeighbours(rows);
+            let minNeighbourDir;
+            let minNeighbourCC = 10*max;
+            Object.keys(directNeighbours).forEach(d => {
+                const cc = directNeighbours[d] !== undefined ? directNeighbours[d].cumulatedCost : 10*max;
+                // XXX if there are multiple equally good routes, make a clever choice here
+                if (minNeighbourCC > cc) {
+                    minNeighbourDir = d;
+                    minNeighbourCC = cc;
+                }
+            });
+
+            if (c.cumulatedCost > (c.moveCost + minNeighbourCC)) {
+                console.warn(`Found non-optimal route at ${c.route} - shorter route via ${minNeighbourDir}. Optimizing...`);
+
+                c.calcCumulatedCost(minNeighbourCC);
+                c.setRoute(directNeighbours[minNeighbourDir].route + reverse(minNeighbourDir));
+                modified++;
             }
-        });
-
-        if (c.cumulatedCost > (c.moveCost + minNeighbourCC)) {
-            console.warn(`Found non-optimal route at ${c.route} - shorter route via ${minNeighbourDir}. Optimizing...`);
-
-            c.calcCumulatedCost(minNeighbourCC);
-            c.setRoute(directNeighbours[minNeighbourDir].route + reverse(minNeighbourDir));
-            modified++;
         }
     }));
     return modified;
@@ -82,22 +84,35 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
     case events.UPDATE_VIEW: {
         console.time('qm.UPDATE_VIEW');
 
+        let rows;
+        if (!state.get('rows')) {
+            // initialize 20x20, center received data
+            rows = [...Array(20)].map(() => [...Array(20)].map(() => undefined));
+
+        } else {
+            // XX initialize rows from state
+            rows = [...Array(20)].map(() => [...Array(20)].map(() => undefined));
+        }
+        // XXX calc offset!
+        const offsetX = 8;
+        const offsetY = 8;
+
         let myCastlePos = null;
         const data = action.view;
-        const rows = data.map(
-            (row, y) => row.map(
+        data.forEach(
+            (row, y) => row.forEach(
                 (column, x) => {
-                    const c = new Cell({data: column, position: {x, y}});
+                    const c = new Cell({data: column, position: {x: offsetX+x, y: offsetY+y}});
                     if (c.myCastle) {
                         assert(myCastlePos === null, 'o-oh, wrap detected - handle me please');
                         myCastlePos = c.position;
                     }
-                    return c;
+                    rows[offsetY+y][offsetX+x] = c;
                 })
         );
         assert(myCastlePos !== null, 'castle not found :(');
 
-        const currentCell = rows[(data.length-1)/2][(data[0].length-1)/2];
+        const currentCell = rows[offsetY + (data.length-1)/2][offsetX + (data[0].length-1)/2];
         currentCell.setCumulatedCost(0);
         currentCell.setRoute('');
 
@@ -110,15 +125,17 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
             console.log('Performing fixup cycle...');
         } while (fixup(rows));
 
-        rows.map(row => row.map(c => c.calcVisibilityGain(rows)));
+        rows.forEach(row => row.forEach(c => c !== undefined && c.calcVisibilityGain(rows)));
 
         let highscore = 0;
         let highscoreCell = null;
-        rows.map(row => row.map(c => {
-            const score = c.calcScore(myCastlePos);
-            if (score > highscore) {
-                highscore = score;
-                highscoreCell = c;
+        rows.forEach(row => row.forEach(c => {
+            if (c !== undefined) {
+                const score = c.calcScore(myCastlePos);
+                if (score > highscore) {
+                    highscore = score;
+                    highscoreCell = c;
+                }
             }
         }));
 
@@ -126,16 +143,18 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
 
         return state.set('rows', new List(rows.map(
             row => List(row.map(
-                cell => new Map({type: cell.type,
-                                 treasure: cell.treasure,
-                                 myCastle: cell.myCastle,
-                                 enemyCastle: cell.enemyCastle,
-                                 moveCost: cell.moveCost,
-                                 cumulatedCost: cell.cumulatedCost,
-                                 route: cell.route,
-                                 visibilityGain: cell.visibilityGain,
-                                 score: cell.score
-                                })
+                cell => cell ?
+                    new Map({type: cell.type,
+                             treasure: cell.treasure,
+                             myCastle: cell.myCastle,
+                             enemyCastle: cell.enemyCastle,
+                             moveCost: cell.moveCost,
+                             cumulatedCost: cell.cumulatedCost,
+                             route: cell.route,
+                             visibilityGain: cell.visibilityGain,
+                             score: cell.score
+                            })
+                : null
             ))
         )))
             .set('myPos', new Map(currentCell.position))

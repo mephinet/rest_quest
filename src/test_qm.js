@@ -37,10 +37,10 @@ const test = () => {
     const newState = qm(initialState, {type: events.UPDATE_VIEW, view: initialView});
 
     expect(newState.get('rows')).toBeA(List);
-    expect(newState.getIn(['rows', 1])).toBeA(List);
-    expect(newState.getIn(['rows', 1, 1])).toBeA(Map);
-    expect(newState.getIn(['rows', 1, 1])).toEqual(castleCell);
-    expect(newState.get('myPos')).toEqual(fromJS({x: 1, y: 1}));
+    expect(newState.getIn(['rows', 9])).toBeA(List);
+    expect(newState.getIn(['rows', 9, 9])).toBeA(Map);
+    expect(newState.getIn(['rows', 9, 9])).toEqual(castleCell);
+    expect(newState.get('myPos')).toEqual(fromJS({x: 9, y: 9}));
     expect(newState.getIn(['strategy', 'route'])).toEqual('e');
 };
 
