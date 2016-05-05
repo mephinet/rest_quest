@@ -34,7 +34,8 @@ export const login = () => {
                     } else {
                         console.log('successfully registered.');
                         store.dispatch({type: events.UPDATE_VIEW, view: data});
-                        store.dispatch({type: events.MOVE});
+                        store.dispatch({type: events.MOVE, map: store.getState().get('map')});
+                        move(store.getState().getIn(['movement', 'step']));
                     }
                 }
             });

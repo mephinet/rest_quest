@@ -1,11 +1,7 @@
-import * as events from '../events';
-
 import {Map} from 'immutable';
 import assert from 'assert';
 
-import store from '../store';
-
-import {move} from '../communication';
+import * as events from '../events';
 
 const movement = (state = new Map(), action) => {
     switch (action.type) {
@@ -27,19 +23,25 @@ const movement = (state = new Map(), action) => {
     }
 
     case events.MOVE: {
-        const qm = store.getState().getIn(['map', 'qm']);
+        const lastStep = state.get('step');
+        if (lastStep) {
+            console.log(`Still going ${lastStep}`);
+            return state;
+        }
+
+        const qm = action.map.get('qm');
         const route = qm.getIn(['strategy', 'route']);
         assert(route && route.length > 0, "where to move to?");
         const step = route[0];
+        console.log(`Going ${step}`);
 
         const myPos = qm.get('myPos');
         const rows = qm.get('rows');
         const currentCell = rows.getIn([myPos.get('y'), myPos.get('x')]);
+        assert(currentCell !== undefined, 'current cell not found!');
         const nextCell = currentCell.neighbour(step, rows);
 
         const cost = nextCell.moveCost;
-
-        move(step);
         return state.merge({step, cost});
     }
     default:
