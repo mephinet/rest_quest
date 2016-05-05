@@ -9,7 +9,8 @@ const Row = ({cells, myCell}) => {
             <Cell key={pos} type={c.get('type')}
                   myCastle={c.get('myCastle')}
                   enemyCastle={c.get('enemyCastle')}
-                  cost={c.get('cost')}
+                  moveCost={c.get('moveCost')}
+                  cumulatedCost={c.get('cumulatedCost')}
                   myCell={pos === myCell}
             />);
 
