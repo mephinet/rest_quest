@@ -2,7 +2,7 @@ import {Map, List} from 'immutable';
 
 import * as events from '../events';
 
-import Cell from '../components/Cell';
+import {Cell, max} from '../components/Cell';
 
 const expand = (cell, rows, movement1, movement2, direction1, direction2) => {
     if (cell === undefined) {
@@ -43,6 +43,33 @@ const expand = (cell, rows, movement1, movement2, direction1, direction2) => {
     if (n12 != undefined) expand(n12, rows, movement1, movement2, direction1, direction2);
 };
 
+const reverse = dir => { return {n: 's', s: 'n', e: 'w', w: 'e'}[dir]; };
+
+const fixup = rows => {
+    let modified = 0;
+    rows.map(row => row.map(c => {
+        const directNeighbours = c.directNeighbours(rows);
+        let minNeighbourDir;
+        let minNeighbourCC = 10*max;
+        Object.keys(directNeighbours).map(d => {
+            const cc = directNeighbours[d] !== undefined ? directNeighbours[d].cumulatedCost : 10*max;
+            if (minNeighbourCC > cc) {
+                minNeighbourDir = d;
+                minNeighbourCC = cc;
+            }
+        });
+
+        if (c.cumulatedCost > (c.moveCost + minNeighbourCC)) {
+            console.warn(`Found non-optimal route at ${c.route} - shorter route via ${minNeighbourDir}. Optimizing...`);
+
+            c.calcCumulatedCost(minNeighbourCC);
+            c.setRoute(directNeighbours[minNeighbourDir].route + reverse(minNeighbourDir));
+            modified++;
+        }
+    }));
+    return modified;
+};
+
 const qm = (state = new Map({rows: null, myPos: undefined}), action) => {
 
     switch(action.type) {
@@ -62,6 +89,10 @@ const qm = (state = new Map({rows: null, myPos: undefined}), action) => {
         expand(currentCell, rows, (c, rows) => c.neighbourNorth(rows), (c, rows) => c.neighbourWest(rows), 'n', 'w');
         expand(currentCell, rows, (c, rows) => c.neighbourSouth(rows), (c, rows) => c.neighbourEast(rows), 's', 'e');
         expand(currentCell, rows, (c, rows) => c.neighbourSouth(rows), (c, rows) => c.neighbourWest(rows), 's', 'w');
+
+        do {
+            console.log('Performing fixup cycle...');
+        } while (fixup(rows));
 
         return state.set('rows', rows).set('myPos', [((data[0].length-1)/2), ((data.length-1)/2)]);
     }

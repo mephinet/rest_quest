@@ -1,8 +1,8 @@
 import store from '../store';
 
-const max = 100000;
+export const max = 100000;
 
-class Cell {
+export class Cell {
 
     constructor ({data, position}) {
         this.type = data.type;
@@ -76,7 +76,12 @@ class Cell {
     }
 
     directNeighbours(rows) {
-        return [this.neighbourWest(rows), this.neighbourNorth(rows), this.neighbourEast(rows), this.neighbourSouth(rows)];
+        return {
+            w: this.neighbourWest(rows),
+            n: this.neighbourNorth(rows),
+            e: this.neighbourEast(rows),
+            s: this.neighbourSouth(rows)
+        };
     }
 }
 
