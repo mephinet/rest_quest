@@ -1,4 +1,5 @@
 import {Map, List} from 'immutable';
+import assert from 'assert';
 
 import * as events from '../events';
 
@@ -73,14 +74,21 @@ const fixup = rows => {
 
 const qm = (state = new Map({rows: null, myPos: undefined}), action) => {
 
+    let myCastlePos = null;
     switch(action.type) {
     case events.UPDATE_VIEW: {
         const data = action.view.view;
         const rows = List(data.map((row, y) => {
             return List(row.map((column, x) => {
-                return new Cell({data: column, position: {x, y}});
+                const c = new Cell({data: column, position: {x, y}});
+                if (c.myCastle) {
+                    assert(myCastlePos === null, 'o-oh, wrap detected - handle me please');
+                    myCastlePos = c.position;
+                }
+                return c;
             }));
         }));
+        assert(myCastlePos !== null, 'castle not found :(');
 
         const currentCell = rows.get((data.length-1)/2).get((data[0].length-1)/2);
         currentCell.setCumulatedCost(0);
@@ -96,6 +104,8 @@ const qm = (state = new Map({rows: null, myPos: undefined}), action) => {
         } while (fixup(rows));
 
         rows.map(row => row.map(c => c.calcVisibilityGain(rows)));
+
+        rows.map(row => row.map(c => c.calcScore(myCastlePos)));
 
         return state.set('rows', rows).set('myPos', [((data[0].length-1)/2), ((data.length-1)/2)]);
     }

@@ -3,7 +3,7 @@ import React from 'react';
 
 import classNames from 'classnames';
 
-const Cell = ({type, myCell, myCastle, enemyCastle, moveCost, cumulatedCost, route, visibilityGain}) => {
+const Cell = ({type, myCell, myCastle, enemyCastle, moveCost, cumulatedCost, route, visibilityGain, score}) => {
     const cn = classNames(type, {my: myCell, myCastle, enemyCastle});
 
     return (<td className={cn}>
@@ -12,6 +12,7 @@ const Cell = ({type, myCell, myCastle, enemyCastle, moveCost, cumulatedCost, rou
             <span className="details cumulatedCost">cc:{cumulatedCost}</span>
             <span className="details route">r:{route}</span>
             <span className="details visibilityGain">vg:{visibilityGain}</span>
+            <span className="details score">s:{ score === undefined ? '?' : score.toPrecision(3) }</span>
             </td>);
 };
 
@@ -23,6 +24,7 @@ Cell.propTypes = {
     moveCost: React.PropTypes.number,
     cumulatedCost: React.PropTypes.number,
     visibilityGain: React.PropTypes.number,
+    score: React.PropTypes.number,
     route: React.PropTypes.string
 };
 

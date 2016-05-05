@@ -19,6 +19,7 @@ export class Cell {
         this.cumulatedCost = undefined;
         this.route = undefined;
         this.visibilityGain = undefined;
+        this.score = undefined;
     }
 
     calcMoveCost(type, enemyCastle) {
@@ -58,6 +59,18 @@ export class Cell {
             }
         });
         return this.visibilityGain = gain;
+    }
+
+    calcManhattan(other) {
+        return Math.abs(other.x - this.position.x) + Math.abs(other.y - this.position.y);
+    }
+
+    calcScore(myCastlePos) {
+        if (this.cumulatedCost === 0) {
+            return this.score = 0;
+        }
+        const distanceToHome = this.calcManhattan(myCastlePos);
+        return this.score = this.visibilityGain / (this.cumulatedCost + distanceToHome);
     }
 
     setCumulatedCost(cost) {
