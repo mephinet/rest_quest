@@ -82,6 +82,7 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
     switch(action.type) {
     case events.UPDATE_VIEW: {
         console.time('qm.UPDATE_VIEW');
+
         const data = action.view.view;
         const rows = List(data.map((row, y) => {
             return List(row.map((column, x) => {
@@ -95,7 +96,7 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
         }));
         assert(myCastlePos !== null, 'castle not found :(');
 
-        const currentCell = rows.get((data.length-1)/2).get((data[0].length-1)/2);
+        const currentCell = rows.getIn([(data.length-1)/2, (data[0].length-1)/2]);
         currentCell.setCumulatedCost(0);
         currentCell.setRoute('');
 

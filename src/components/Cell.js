@@ -11,7 +11,7 @@ export class Cell {
         this.position = position;
         this.treasure = data.treasure;
 
-        const username = store.getState().get('config').get('username');
+        const username = store.getState().getIn(['config', 'username']);
         this.myCastle = data.castle ? data.castle === username : false;
         this.enemyCastle = data.castle ? data.castle !== username : false;
 
@@ -94,7 +94,7 @@ export class Cell {
 
     neighbourWest(rows) {
         if (this.position.x === 0) return;
-        return rows.get(this.position.y).get(this.position.x-1);
+        return rows.getIn([this.position.y, this.position.x-1]);
     }
 
     neighbourEast(rows) {

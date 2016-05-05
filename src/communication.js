@@ -5,7 +5,7 @@ import store from './store';
 import * as events from './events';
 
 export const reset = () => {
-    const baseurl = store.getState().get('config').get('baseurl');
+    const baseurl = store.getState().getIn(['config', 'baseurl']);
     request({url: baseurl + '/reset/', method: 'GET'},
             (error, response, body) => {
                 if(error) {
@@ -18,8 +18,9 @@ export const reset = () => {
 };
 
 export const login = () => {
-    const baseurl = store.getState().get('config').get('baseurl');
-    const name = store.getState().get('config').get('username');
+    const config = store.getState().get('config');
+    const baseurl = config.get('baseurl');
+    const name = config.get('username');
     request({url: baseurl + '/register/', method: 'POST', form: {name}},
             (error, response, body) => {
                 if(error) {
@@ -32,23 +33,32 @@ export const login = () => {
                         process.exit(1);
                     } else {
                         console.log('successfully registered.');
-                        store.dispatch({type: events.UPDATE_VIEW, view: JSON.parse(body)});
+                        store.dispatch({type: events.UPDATE_VIEW, view: data});
                         store.dispatch({type: events.MOVE});
                     }
                 }
             });
 };
 
-export const move = (direction) => {
-    const baseurl = store.getState().get('config').get('baseurl');
-    const name = store.getState().get('config').get('username');
-    request({url: baseurl + '/move/', method: 'POST', form: {name, direction}},
+export const move = (step) => {
+    const direction = {n: 'up', s: 'down', w: 'left', e: 'right'}[step];
+    const config = store.getState().get('config');
+    const baseurl = config.get('baseurl');
+    const player = config.get('username');
+    request({url: baseurl + '/move/', method: 'POST', form: {player, direction}},
             (error, response, body) => {
                 if(error) {
                     console.error('move failed' + body);
                     process.exit(1);
                 } else {
-                    console.log('successfully moved.');
+                    const data = JSON.parse(body);
+                    if (data.error) {
+                        console.error('Server returned error: ' + data.error);
+                        process.exit(1);
+                    } else {
+                        console.log('successfully moved.');
+                        store.dispatch({type: events.UPDATE_VIEW, view: data});
+                    }
                 }
             });
 };
