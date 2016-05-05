@@ -1,3 +1,5 @@
+import 'babel-polyfill';
+
 import io from 'socket.io-client';
 import React from 'react';
 import {render} from 'react-dom';

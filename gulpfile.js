@@ -13,7 +13,6 @@ var eslintify = require('eslintify');
 var uglify = require('gulp-uglify');
 var eslint = require('gulp-eslint');
 var stylus = require('gulp-stylus');
-var minify = require('gulp-minify-css');
 
 var reload = browserSync.reload;
 
@@ -58,15 +57,8 @@ gulp.task('client', [], function() {
 });
 
 gulp.task('stylus', [], function () {
-    var pipeline = gulp.src(webConfig.entryStylFile)
-        .pipe(stylus());
-
-    if (process.env.NODE_ENV === 'production') {
-        pipeline = pipeline
-            .pipe(minify());
-    }
-
-    return pipeline
+    return gulp.src(webConfig.entryStylFile)
+        .pipe(stylus({include: './node_modules/normalize-styl', compress : process.env.NODE_ENV === 'production'}))
         .pipe(gulp.dest(webConfig.outputDir))
         .pipe(reload({ stream: true }));
 });
