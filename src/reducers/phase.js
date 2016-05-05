@@ -7,7 +7,8 @@ const phase = (state = phases.DISCOVER, action) => {
     case events.UPDATE_VIEW:
         if (action.view.treasure) {
             return phases.GOHOME;
-        } else if (action.view.view.some(row => row.some(tile => tile.treasure))) {
+        } else if (action.view.some(row => row.some(tile => tile.treasure))) {
+            console.warn('Switching phase!');
             return phases.GOTOTREASURE;
         } else {
             return phases.DISCOVER;

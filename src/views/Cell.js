@@ -3,13 +3,14 @@ import React from 'react';
 
 import classNames from 'classnames';
 
-const Cell = ({type, myCell, myCastle, enemyCastle, moveCost, cumulatedCost, route, visibilityGain, score}) => {
-    const cn = classNames(type, {my: myCell, myCastle, enemyCastle});
+const Cell = ({type, treasure, myCell, myCastle, enemyCastle, moveCost, cumulatedCost, route, visibilityGain, score}) => {
+    const cn = classNames(type, {my: myCell, myCastle, enemyCastle, treasure});
+    const cost = v => v >= 100 ? '∞' : v;
 
     return (<td className={cn}>
             <span className="details type">{type}</span>
-            <span className="details moveCost">mc:{moveCost}</span>
-            <span className="details cumulatedCost">cc:{cumulatedCost}</span>
+            <span className="details moveCost">mc:{cost(moveCost)}</span>
+            <span className="details cumulatedCost">cc:{cost(cumulatedCost)}</span>
             <span className="details route">r:{route}</span>
             <span className="details visibilityGain">vg:{visibilityGain}</span>
             <span className="details score">s:{ score === undefined ? '?' : score.toPrecision(3) }</span>
@@ -18,6 +19,7 @@ const Cell = ({type, myCell, myCastle, enemyCastle, moveCost, cumulatedCost, rou
 
 Cell.propTypes = {
     type: React.PropTypes.string,
+    treasure: React.PropTypes.bool,
     myCell: React.PropTypes.bool,
     myCastle: React.PropTypes.bool,
     enemyCastle: React.PropTypes.bool,

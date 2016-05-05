@@ -3,7 +3,7 @@ import React from 'react';
 const Strategy = ({route, highscore}) => {
     return (<div className="strategy">
             <div className="route">Best route: {route}</div>
-            <div className="highscore">Highest score: {highscore}</div>
+            <div className="highscore">Highest score: {highscore.toPrecision(3)}</div>
             </div>);
 };
 

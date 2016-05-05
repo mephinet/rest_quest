@@ -45,15 +45,15 @@ export class Cell {
 
         let gain = 0;
         rowIds.map(rowId => {
-            if ((rowId < 0) || (rowId > rows.size-1)) {
+            if ((rowId < 0) || (rowId > rows.length-1)) {
                 gain += colIds.length;
             } else {
-                const row = rows.get(rowId);
+                const row = rows[rowId];
                 colIds.map(colId => {
-                    if ((colId < 0) || (colId > row.size-1)) {
+                    if ((colId < 0) || (colId > row.length-1)) {
                         gain += 1;
                     } else {
-                        gain += !row.has(colId);
+                        gain += (row[colId] === undefined);
                     }
                 });
             }
@@ -94,25 +94,23 @@ export class Cell {
 
     neighbourWest(rows) {
         if (this.position.x === 0) return;
-        return rows.getIn([this.position.y, this.position.x-1]);
+        return rows[this.position.y][this.position.x-1];
     }
 
     neighbourEast(rows) {
-        const row = rows.get(this.position.y);
-        if (this.position.x >= row.size-1) return;
-        return row.get(this.position.x+1);
+        const row = rows[this.position.y];
+        if (this.position.x >= row.length-1) return;
+        return row[this.position.x+1];
     }
 
     neighbourNorth(rows) {
         if (this.position.y === 0) return;
-        const row = rows.get(this.position.y-1);
-        return row.get(this.position.x);
+        return rows[this.position.y-1][this.position.x];
     }
 
     neighbourSouth(rows) {
-        if (this.position.y >= rows.size-1) return;
-        const row = rows.get(this.position.y+1);
-        return row.get(this.position.x);
+        if (this.position.y >= rows.length-1) return;
+        return rows[this.position.y+1][this.position.x];
     }
 
     neighbour(dir, rows) {

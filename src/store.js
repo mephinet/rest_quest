@@ -1,6 +1,5 @@
 import {createStore, applyMiddleware} from 'redux';
 import {combineReducers} from 'redux-immutable';
-import createLogger from 'redux-logger';
 
 import map from './reducers/map';
 import config from './reducers/config';
@@ -12,7 +11,12 @@ const app = combineReducers({
     movement
 });
 
-const logger = createLogger({colors: false});
-const store = createStore(app, applyMiddleware(logger));
+let middlewares = [];
+
+// import createLogger from 'redux-logger';
+// const logger = createLogger({colors: false });
+// middlewares.push(logger);
+
+const store = createStore(app, applyMiddleware(...middlewares));
 
 export default store;

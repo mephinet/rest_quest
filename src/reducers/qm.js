@@ -78,25 +78,26 @@ const fixup = rows => {
 
 const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) => {
 
-    let myCastlePos = null;
     switch(action.type) {
     case events.UPDATE_VIEW: {
         console.time('qm.UPDATE_VIEW');
 
-        const data = action.view.view;
-        const rows = List(data.map((row, y) => {
-            return List(row.map((column, x) => {
-                const c = new Cell({data: column, position: {x, y}});
-                if (c.myCastle) {
-                    assert(myCastlePos === null, 'o-oh, wrap detected - handle me please');
-                    myCastlePos = c.position;
-                }
-                return c;
-            }));
-        }));
+        let myCastlePos = null;
+        const data = action.view;
+        const rows = data.map(
+            (row, y) => row.map(
+                (column, x) => {
+                    const c = new Cell({data: column, position: {x, y}});
+                    if (c.myCastle) {
+                        assert(myCastlePos === null, 'o-oh, wrap detected - handle me please');
+                        myCastlePos = c.position;
+                    }
+                    return c;
+                })
+        );
         assert(myCastlePos !== null, 'castle not found :(');
 
-        const currentCell = rows.getIn([(data.length-1)/2, (data[0].length-1)/2]);
+        const currentCell = rows[(data.length-1)/2][(data[0].length-1)/2];
         currentCell.setCumulatedCost(0);
         currentCell.setRoute('');
 
@@ -123,7 +124,20 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
 
         console.timeEnd('qm.UPDATE_VIEW');
 
-        return state.set('rows', rows)
+        return state.set('rows', new List(rows.map(
+            row => List(row.map(
+                cell => new Map({type: cell.type,
+                                 treasure: cell.treasure,
+                                 myCastle: cell.myCastle,
+                                 enemyCastle: cell.enemyCastle,
+                                 moveCost: cell.moveCost,
+                                 cumulatedCost: cell.cumulatedCost,
+                                 route: cell.route,
+                                 visibilityGain: cell.visibilityGain,
+                                 score: cell.score
+                                })
+            ))
+        )))
             .set('myPos', new Map(currentCell.position))
             .set('strategy', new Map({highscore: highscore, route: highscoreCell.route}));
     }

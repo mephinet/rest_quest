@@ -9,6 +9,7 @@ const Row = ({cells, myCell}) => {
             <Cell key={pos} type={c.get('type')}
                   myCastle={c.get('myCastle')}
                   enemyCastle={c.get('enemyCastle')}
+                  treasure={c.get('treasure')}
                   moveCost={c.get('moveCost')}
                   cumulatedCost={c.get('cumulatedCost')}
                   route={c.get('route')}
