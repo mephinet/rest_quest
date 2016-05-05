@@ -21,7 +21,7 @@ class Cell {
         if(enemyCastle) {
             return max;
         }
-        
+
         switch (type) {
         case 'mountain':
             return 2;
@@ -45,6 +45,28 @@ class Cell {
         }
         this.cumulatedCost = newCost;
         return true;
+    }
+
+    neighbourWest(rows) {
+        return rows.get(this.position.y).get(this.position.x-1);
+    }
+
+    neighbourEast(rows) {
+        return rows.get(this.position.y).get(this.position.x+1);
+    }
+
+    neighbourNorth(rows) {
+        const row = rows.get(this.position.y-1);
+        return row ? row.get(this.position.x) : null;
+    }
+
+    neighbourSouth(rows) {
+        const row = rows.get(this.position.y+1);
+        return row ? row.get(this.position.x) : null;
+    }
+
+    directNeighbours(rows) {
+        return [this.neighbourWest(rows), this.neighbourNorth(rows), this.neighbourEast(rows), this.neighbourSouth(rows)];
     }
 }
 

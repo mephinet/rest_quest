@@ -18,12 +18,12 @@ const qm = (state = new Map({rows: null, myPos: undefined}), action) => {
         let currentCell = rows.get((data.length-1)/2).get((data[0].length-1)/2);
         currentCell.setCumulatedCost(0);
 
-        let success;
-        do {
-            const oneUp = above(rows, currentCell);
-            success = oneUp.calcCumulatedCost(currentCell.cumulatedCost);
-            currentCell = oneUp;
-        } while (success);
+        currentCell.directNeighbours(rows).map(n => n.calcCumulatedCost(currentCell.cumulatedCost));
+
+        currentCell.neighbourNorth(rows).neighbourNorth(rows).calcCumulatedCost(currentCell.neighbourNorth(rows).cumulatedCost);
+        currentCell.neighbourSouth(rows).neighbourSouth(rows).calcCumulatedCost(currentCell.neighbourSouth(rows).cumulatedCost);
+        currentCell.neighbourEast(rows).neighbourEast(rows).calcCumulatedCost(currentCell.neighbourEast(rows).cumulatedCost);
+        currentCell.neighbourWest(rows).neighbourWest(rows).calcCumulatedCost(currentCell.neighbourWest(rows).cumulatedCost);
 
         return state.set('rows', rows).set('myPos', [((data[0].length-1)/2), ((data.length-1)/2)]);
     }
@@ -32,7 +32,5 @@ const qm = (state = new Map({rows: null, myPos: undefined}), action) => {
     }
 
 };
-
-const above = (rows, cell) => rows.get(cell.position.y-1).get(cell.position.x);
 
 export default qm;
