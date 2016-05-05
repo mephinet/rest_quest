@@ -15,6 +15,7 @@ class Cell {
 
         this.moveCost = this.calcMoveCost(this.type, this.enemyCastle);
         this.cumulatedCost = undefined;
+        this.route = undefined;
     }
 
     calcMoveCost(type, enemyCastle) {
@@ -36,6 +37,10 @@ class Cell {
         this.cumulatedCost = cost;
     }
 
+    setRoute(r) {
+        this.route = r;
+    }
+
     calcCumulatedCost(costUntilHere) {
         // check if we already have a cumulatedCost - if so, only updated if lower!
         const newCost = costUntilHere + this.moveCost;
@@ -48,21 +53,26 @@ class Cell {
     }
 
     neighbourWest(rows) {
+        if (this.position.x === 0) return;
         return rows.get(this.position.y).get(this.position.x-1);
     }
 
     neighbourEast(rows) {
-        return rows.get(this.position.y).get(this.position.x+1);
+        const row = rows.get(this.position.y);
+        if (this.position.x >= row.size-1) return;
+        return row.get(this.position.x+1);
     }
 
     neighbourNorth(rows) {
+        if (this.position.y === 0) return;
         const row = rows.get(this.position.y-1);
-        return row ? row.get(this.position.x) : null;
+        return row.get(this.position.x);
     }
 
     neighbourSouth(rows) {
+        if (this.position.y >= rows.size-1) return;
         const row = rows.get(this.position.y+1);
-        return row ? row.get(this.position.x) : null;
+        return row.get(this.position.x);
     }
 
     directNeighbours(rows) {

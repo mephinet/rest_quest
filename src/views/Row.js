@@ -11,6 +11,7 @@ const Row = ({cells, myCell}) => {
                   enemyCastle={c.get('enemyCastle')}
                   moveCost={c.get('moveCost')}
                   cumulatedCost={c.get('cumulatedCost')}
+                  route={c.get('route')}
                   myCell={pos === myCell}
             />);
 
