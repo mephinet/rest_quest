@@ -26,7 +26,9 @@ const test = () => {
                                         [null, thenCell, nextCell],
                                         [null, null, thisCell]
                                        ],
-                                 myPos}});
+                                 myPos,
+                                 nextPos: {x: 2, y: 3, cost: 1}
+                                }});
 
     const expected1 = new Map({step: 'n', cost: 1});
     expect(movement(new Map(), {type: events.MOVE, map: initial})).toEqual(expected1);
@@ -35,7 +37,9 @@ const test = () => {
 
     // one step west onto a mountain
     const next = initial.setIn(['qm', 'strategy', 'route'], 'wxy')
-          .setIn(['qm', 'myPos'], fromJS({x: 2, y: 3}));
+          .setIn(['qm', 'myPos'], fromJS({x: 2, y: 3}))
+          .setIn(['qm', 'nextPos'], fromJS({x: 1, y: 3, cost: 2}));
+
     const expected2 = new Map({step: 'w', cost: 2});
     expect(movement(new Map(), {type: events.MOVE, map: next})).toEqual(expected2);
 

@@ -2,7 +2,6 @@ import {Map} from 'immutable';
 import assert from 'assert';
 
 import * as events from '../events';
-import Cell from '../components/Cell';
 
 const movement = (state = new Map(), action) => {
     switch (action.type) {
@@ -34,16 +33,11 @@ const movement = (state = new Map(), action) => {
         const route = qm.getIn(['strategy', 'route']);
         assert(route && route.length > 0, "where to move to?");
         const step = route[0];
-        console.log(`Going ${step}`);
+        const cost = qm.getIn(['nextPos', 'cost']);
+        assert(cost && cost > 0, 'no cost found');
+        console.log(`Going ${step} (takes ${cost})`);
 
-        const myPos = qm.get('myPos');
-        const rows = qm.get('rows');
 
-        // XXX would be great if we could calculate that no immutable datastructures...
-        const currentCell = new Cell({data: rows.getIn([myPos.get('y'), myPos.get('x')]), position: myPos.toJS()});
-        const nextCell = currentCell.neighbour(step, rows.toJS());
-
-        const cost = nextCell.moveCost;
         return state.merge({step, cost});
     }
     default:

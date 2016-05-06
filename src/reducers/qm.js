@@ -141,6 +141,9 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
 
         console.timeEnd('qm.UPDATE_VIEW');
 
+        const step = highscoreCell.route[0];
+        const nextCell = currentCell.neighbour(step, rows);
+
         return state.set('rows', new List(rows.map(
             row => List(row.map(
                 cell => cell ?
@@ -158,6 +161,7 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
             ))
         )))
             .set('myPos', new Map(currentCell.position))
+            .set('nextPos', new Map({cost: nextCell.moveCost, x: nextCell.position.x, y: nextCell.position.y}))
             .set('strategy', new Map({highscore: highscore, route: highscoreCell.route}));
     }
     default:
