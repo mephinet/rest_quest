@@ -1,5 +1,5 @@
-import test_movement from './test_movement';
-import test_qm from './test_qm';
+import test_movement from './tests/test_movement';
+import test_qm from './tests/test_qm';
 
 console.info('Testing movement reducer...');
 test_movement();

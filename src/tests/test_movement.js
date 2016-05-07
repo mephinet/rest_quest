@@ -1,10 +1,10 @@
-import './store';
-import * as events from './events';
+import '../store';
+import * as events from '../events';
 
 import expect from 'expect';
 import {Map} from 'immutable';
 
-import movement from './reducers/movement';
+import movement from '../reducers/movement';
 
 const test = () => {
 

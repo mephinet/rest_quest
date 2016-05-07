@@ -1,9 +1,8 @@
-export const max = 100000;
+import {maxCost, visibility} from '../consts';
 
 const range = (start, end) => [...Array(end - start + 1)].map((_, i) => start + i);
 
-export class Cell {
-
+class Cell {
     constructor ({type, position, treasure, myCastle, enemyCastle}) {
         this.type = type;
         this.position = position;
@@ -20,12 +19,12 @@ export class Cell {
 
     calcMoveCost(type, enemyCastle) {
         if(enemyCastle) {
-            return max;
+            return maxCost;
         }
 
         switch (type) {
         case 'water':
-            return max;
+            return maxCost;
         case 'mountain':
             return 2;
         default:
@@ -34,7 +33,7 @@ export class Cell {
     }
 
     calcVisibilityGain(rows) {
-        const viewOneDir = {forest: 1, grass: 2, mountain: 3, water: 0}[this.type];
+        const viewOneDir = visibility[this.type];
 
         const rowIds = range(this.position.y - viewOneDir, this.position.y + viewOneDir);
         const colIds = range(this.position.x - viewOneDir, this.position.x + viewOneDir);

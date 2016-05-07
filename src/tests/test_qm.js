@@ -1,8 +1,8 @@
 import expect from 'expect';
 import {List, Map} from 'immutable';
 
-import qm from './reducers/qm';
-import * as events from './events';
+import qm from '../reducers/qm';
+import * as events from '../events';
 
 const test = () => {
 
