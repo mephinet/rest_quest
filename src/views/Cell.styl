@@ -20,11 +20,6 @@ td.forest
 td.mountain
   background-color: yellow
 
-td.my
-  border: 3px solid
-  padding: 0px
-  background-image: url('../assets/tile-avatar-player1.svg') !important
-
 td.myCastle
   background-image: url('../assets/tile-castle-player1.svg')
 
@@ -32,33 +27,39 @@ td.enemyCastle
   background-image: url('../assets/tile-castle-player2.svg')
 
 td.treasure
-  border: 2px solid yellow
+  border: 3px solid yellow
+  padding: 0px
   background-image: url('../assets/tile-treasure.svg')
+
+td.my
+  border: 3px solid
+  padding: 0px
+  background-image: url('../assets/tile-avatar-player1.svg')
 
 td .details
   position: absolute
   font-size: 10px
+  left: 3px
+  right: 3px
+  overflow: hidden
+  white-space: nowrap
+  text-overflow: ellipsis
 
 td .type
-  top: 2px
-  right: 3px
-
-td .route
-  bottom: 2px
-  right: 3px
+  top: 1px
+  text-align: right
 
 td .visibilityGain
-  top: 2px
-  left: 3px
+  top: 1px
 
 td .moveCost
-  top: 12px
-  left: 3px
+  top: 11px
 
 td .cumulatedCost
-  top: 22px
-  left: 3px
+  top: 21px
 
 td .score
-  bottom: 2px
-  left: 3px
+  top: 31px
+
+td .route
+  top: 41px
