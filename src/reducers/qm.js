@@ -30,7 +30,7 @@ const expand = (cell, rows, movement1, movement2, direction1, direction2) => {
           n2 !== undefined ? movement1(n2, rows) :
           undefined;
     if (n12 !== undefined) {
-        if (n1.cumulatedCost <= n2.cumulatedCost) {
+        if (n1 !== undefined && (n2 === undefined || n1.cumulatedCost <= n2.cumulatedCost)) {
             if (n12.calcCumulatedCost(n1.cumulatedCost)) {
                 // if equal CC, make clever choice here
                 n12.setRoute(cell.route + direction1 + direction2);
@@ -78,41 +78,91 @@ const fixup = rows => {
     return modified;
 };
 
-const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) => {
+const qm = (state = new Map({rows: null, myPos: null, nextPos: null, strategy: new Map()}), action) => {
 
     switch(action.type) {
     case events.UPDATE_VIEW: {
-        console.time('qm.UPDATE_VIEW');
-
-        let rows;
-        if (!state.get('rows')) {
-            // initialize 20x20, center received data
-            rows = [...Array(20)].map(() => [...Array(20)].map(() => undefined));
-
-        } else {
-            // XX initialize rows from state
-            rows = [...Array(20)].map(() => [...Array(20)].map(() => undefined));
-        }
-        // XXX calc offset!
-        const offsetX = 8;
-        const offsetY = 8;
-
-        let myCastlePos = null;
+        // build empty array with initial size
+        const initialMapSize = action.initialMapSize || 15;
+        const rows = [...Array(initialMapSize)].map(() => [...Array(initialMapSize)].map(() => undefined));
         const data = action.view;
+        const stepDone = state.getIn(['strategy', 'remainingStepCost']) === 0;
+        const initial = !state.get('rows');
+
+        let offsetX, offsetY, myPos, myCastlePos;
+        if (initial) {
+            offsetX = offsetY = Math.round((initialMapSize-data.length)/2);
+            myPos = {x: (offsetX + (data[0].length-1)/2),
+                     y: (offsetY + (data.length-1)/2)
+                    };
+        } else {
+            // populate array with state
+            state.get('rows', []).forEach(
+                (row, y) => {
+                    if(!rows[y]) {
+                        rows[y] = [];
+                    }
+                    row.forEach(
+                        (column, x) => {
+                            if (column) {
+                                const c = rows[y][x] = new Cell({
+                                    type: column.get('type'),
+                                    position: {x, y},
+                                    treasure: column.get('treasure'),
+                                    myCastle: column.get('myCastle'),
+                                    enemyCastle: column.get('enemyCastle')
+                                });
+
+                                if (c.myCastle) {
+                                    myCastlePos = c.position;
+                                }
+                            }
+                        }
+                    );
+                }
+            );
+
+            // use old position or old nextPos to calculate offset of received map
+            const getPosFrom = stepDone ? 'nextPos' : 'myPos';
+            myPos = {x: state.getIn([getPosFrom, 'x']),
+                     y: state.getIn([getPosFrom, 'y'])
+                    };
+            offsetX = myPos.x - (data[0].length-1)/2;
+            offsetY = myPos.y - (data.length-1)/2;
+
+            assert(offsetX >= 0 && offsetY >= 0, 'offset is negative, we need to pan the map - NYI');
+        }
+
+        const username = action.username;
+        assert(username, "can't build map without knowing the username");
+
+        // update array with received data
         data.forEach(
             (row, y) => row.forEach(
                 (column, x) => {
-                    const c = new Cell({data: column, position: {x: offsetX+x, y: offsetY+y}});
+                    const c = new Cell({
+                        type:        column.type,
+                        position:    {x: offsetX+x, y: offsetY+y},
+                        treasure:    column.treasure,
+                        myCastle:    column.castle ? column.castle === username : false,
+                        enemyCastle: column.castle ? column.castle !== username : false
+                    });
                     if (c.myCastle) {
-                        assert(myCastlePos === null, 'o-oh, wrap detected - handle me please');
+                        assert(!myCastlePos || (myCastlePos.x === c.position.x && myCastlePos.y === c.position.y), 'different castle positions in state and view');
                         myCastlePos = c.position;
+                    }
+                    const oldCell = rows[offsetY+y] ? rows[offsetY+y][offsetX+x] : undefined;
+                    assert(!oldCell || oldCell.type === column.type, `cell (${x}/${y}) changed type from ${oldCell && oldCell.type} to ${column.type}`);
+                    if (!rows[offsetY+y]) {
+                        rows[offsetY+y]= [];
                     }
                     rows[offsetY+y][offsetX+x] = c;
                 })
         );
         assert(myCastlePos !== null, 'castle not found :(');
 
-        const currentCell = rows[offsetY + (data.length-1)/2][offsetX + (data[0].length-1)/2];
+        // calculate cost and gain of every cell
+        const currentCell = rows[myPos.y][myPos.x];
         currentCell.setCumulatedCost(0);
         currentCell.setRoute('');
 
@@ -127,6 +177,7 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
 
         rows.forEach(row => row.forEach(c => c !== undefined && c.calcVisibilityGain(rows)));
 
+        // find best cell
         let highscore = 0;
         let highscoreCell = null;
         rows.forEach(row => row.forEach(c => {
@@ -139,31 +190,61 @@ const qm = (state = new Map({rows: null, myPos: null, strategy: null}), action) 
             }
         }));
 
-        console.timeEnd('qm.UPDATE_VIEW');
+        // decide on new strategy
+        let nextStrategy, nextCell;
+        if (stepDone || initial) {
+            let newRoute = state.getIn(['strategy', 'route'], '').slice(1);
 
-        const step = highscoreCell.route[0];
-        const nextCell = currentCell.neighbour(step, rows);
+            if (!newRoute) {
+                newRoute = highscoreCell.route;
+            }
 
-        return state.set('rows', new List(rows.map(
-            row => List(row.map(
-                cell => cell ?
-                    new Map({type: cell.type,
-                             treasure: cell.treasure,
-                             myCastle: cell.myCastle,
-                             enemyCastle: cell.enemyCastle,
-                             moveCost: cell.moveCost,
-                             cumulatedCost: cell.cumulatedCost,
-                             route: cell.route,
-                             visibilityGain: cell.visibilityGain,
-                             score: cell.score
-                            })
-                : null
-            ))
-        )))
+            const step = newRoute[0];
+            nextCell = currentCell.neighbour(step, rows);
+            nextStrategy = state.get('strategy').merge({route: newRoute, remainingStepCost: nextCell.moveCost});
+
+        } else {
+            // nothing to do
+            nextStrategy = state.get('strategy');
+        }
+
+        let nextState = state.set(
+            'rows', new List(rows.map(
+                row => new List(row.map(
+                    cell => cell ?
+                        new Map({type: cell.type,
+                                 treasure: cell.treasure,
+                                 myCastle: cell.myCastle,
+                                 enemyCastle: cell.enemyCastle,
+                                 moveCost: cell.moveCost,
+                                 cumulatedCost: cell.cumulatedCost,
+                                 route: cell.route,
+                                 visibilityGain: cell.visibilityGain,
+                                 score: cell.score
+                                })
+                    : null
+                ))
+            )))
             .set('myPos', new Map(currentCell.position))
-            .set('nextPos', new Map({cost: nextCell.moveCost, x: nextCell.position.x, y: nextCell.position.y}))
-            .set('strategy', new Map({highscore: highscore, route: highscoreCell.route}));
+            .set('strategy', nextStrategy.set('highscore', highscore));
+
+        if (nextCell) {
+            nextState = nextState.merge({nextPos: {cost: nextCell.moveCost, x: nextCell.position.x, y: nextCell.position.y}});
+        }
+
+        return nextState;
+
     }
+
+    case events.PREPARE_MOVE: {
+        let nextState = state.updateIn(['strategy', 'remainingStepCost'], c => c-1);
+        if (nextState.getIn(['strategy', 'remainingStepCost']) === 0) {
+            return nextState.deleteIn('strategy', 'route');
+        } else {
+            return nextState;
+        }
+    }
+
     default:
         return state;
     }

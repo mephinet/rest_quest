@@ -1,52 +1,40 @@
 import './store';
-import Cell from './components/Cell';
 import * as events from './events';
 
 import expect from 'expect';
-import {Map, fromJS} from 'immutable';
+import {Map} from 'immutable';
 
 import movement from './reducers/movement';
 
 const test = () => {
 
     expect(movement(undefined, {})).toEqual(new Map());
-    expect(movement(new Map(), {type: 'unknown'})).toEqual(new Map());
+    expect(movement(new Map({foo: 42}), {type: 'unknown'})).toEqual(new Map({foo: 42}));
 
     // ignore first UPDATE_VIEW
     expect(movement(new Map(), {type: events.UPDATE_VIEW})).toEqual(new Map());
 
     // one step north onto grass
-    const myPos = {x: 2, y: 4};
-    const thisCell = new Cell({data: {type: 'grass'}, position: myPos});
-    const nextCell = new Cell({data: {type: 'grass'}, position: {x: 2, y: 3}});
-    const thenCell = new Cell({data: {type: 'mountain'}, position: {x: 1, y: 3}});
+    const strategy1 = new Map({route: 'nxy', remainingCost: 1});
+    const expected1 = new Map({step: 'n', remainingCost: 1});
+    expect(movement(new Map(), {type: events.PREPARE_MOVE, strategy: strategy1})).toEqual(expected1);
 
-    const initial = fromJS({qm: {strategy: {route: 'nxy'},
-                                 rows: [[], [], [],
-                                        [null, thenCell, nextCell],
-                                        [null, null, thisCell]
-                                       ],
-                                 myPos,
-                                 nextPos: {x: 2, y: 3, cost: 1}
-                                }});
-
-    const expected1 = new Map({step: 'n', cost: 1});
-    expect(movement(new Map(), {type: events.MOVE, map: initial})).toEqual(expected1);
-    // one MOVE, then we're done
+    // after the move, we're done
     expect(movement(expected1, {type: events.UPDATE_VIEW})).toEqual(new Map());
 
     // one step west onto a mountain
-    const next = initial.setIn(['qm', 'strategy', 'route'], 'wxy')
-          .setIn(['qm', 'myPos'], fromJS({x: 2, y: 3}))
-          .setIn(['qm', 'nextPos'], fromJS({x: 1, y: 3, cost: 2}));
+    const strategy2 = new Map({route: 'wxy', remainingCost: 2});
+    const expected2 = new Map({step: 'w', remainingCost: 2});
+    expect(movement(new Map(), {type: events.PREPARE_MOVE, strategy: strategy2})).toEqual(expected2);
 
-    const expected2 = new Map({step: 'w', cost: 2});
-    expect(movement(new Map(), {type: events.MOVE, map: next})).toEqual(expected2);
-
-    // second round of this step, map hasn't changed, cost is reduced
-    const expected3 = new Map({step: 'w', cost: 1});
+    // after the move, we reduce the remaining Cost
+    const expected3 = new Map({step: 'w', remainingCost: 1});
     expect(movement(expected2, {type: events.UPDATE_VIEW})).toEqual(expected3);
-    expect(movement(expected3, {type: events.MOVE, map: next})).toEqual(expected3);
+
+    // and make another step
+    const strategy4 = new Map({route: 'wxy', remainingCost: 1});
+    const expected4 = new Map({step: 'w', remainingCost: 1});
+    expect(movement(expected3, {type: events.PREPARE_MOVE, strategy: strategy4})).toEqual(expected4);
 
     // after two moves, we're done
     expect(movement(expected3, {type: events.UPDATE_VIEW})).toEqual(new Map());

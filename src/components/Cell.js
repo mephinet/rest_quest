@@ -1,19 +1,15 @@
-import store from '../store';
-
 export const max = 100000;
 
 const range = (start, end) => [...Array(end - start + 1)].map((_, i) => start + i);
 
 export class Cell {
 
-    constructor ({data, position}) {
-        this.type = data.type;
+    constructor ({type, position, treasure, myCastle, enemyCastle}) {
+        this.type = type;
         this.position = position;
-        this.treasure = data.treasure;
-
-        const username = store.getState().getIn(['config', 'username']);
-        this.myCastle = data.castle ? data.castle === username : false;
-        this.enemyCastle = data.castle ? data.castle !== username : false;
+        this.treasure = treasure;
+        this.myCastle = myCastle;
+        this.enemyCastle = enemyCastle;
 
         this.moveCost = this.calcMoveCost(this.type, this.enemyCastle);
         this.cumulatedCost = undefined;

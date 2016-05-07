@@ -24,9 +24,8 @@ const processResponse = body => {
         console.error('Server returned error: ' + data.error);
         process.exit(1);
     } else {
-        console.log('successfully registered.');
-        store.dispatch({type: events.UPDATE_VIEW, view: data.view});
-        store.dispatch({type: events.MOVE, map: store.getState().get('map')});
+        store.dispatch({type: events.UPDATE_VIEW, view: data.view, username: store.getState().getIn(['config', 'username'])});
+        store.dispatch({type: events.PREPARE_MOVE, strategy: store.getState().getIn(["map", "qm", "strategy"])});
         move(store.getState().getIn(['movement', 'step']));
     }
 };

@@ -7,38 +7,35 @@ const movement = (state = new Map(), action) => {
     switch (action.type) {
     case events.UPDATE_VIEW: {
         const lastStep = state.get('step');
-        const lastCost = state.get('cost');
+        const remainingCost = state.get('remainingCost');
         if (!lastStep) {
             // we were not moving
             return state;
         }
 
-        if(lastCost > 1) {
+        if(remainingCost > 1) {
             console.log('Still moving...');
-            return state.set('cost', lastCost-1);
+            return state.update('remainingCost', c => c-1);
         } else {
             console.log('Done moving');
             return state.clear();
         }
     }
 
-    case events.MOVE: {
+    case events.PREPARE_MOVE: {
         const lastStep = state.get('step');
         if (lastStep) {
             console.log(`Still going ${lastStep}`);
             return state;
         }
 
-        const qm = action.map.get('qm');
-        const route = qm.getIn(['strategy', 'route']);
+        const route = action.strategy.get('route');
         assert(route && route.length > 0, "where to move to?");
         const step = route[0];
-        const cost = qm.getIn(['nextPos', 'cost']);
-        assert(cost && cost > 0, 'no cost found');
-        console.log(`Going ${step} (takes ${cost})`);
 
+        const remainingCost = action.strategy.get('remainingCost');
 
-        return state.merge({step, cost});
+        return state.merge({step, remainingCost});
     }
     default:
         return state;
