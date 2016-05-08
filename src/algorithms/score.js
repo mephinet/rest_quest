@@ -4,7 +4,7 @@ export const calcManhattanDistance = (position1, position2) => {
 };
 
 export const calcScore = (cell, myCastlePos) => {
-    if (cell.cumulatedCost === 0) {
+    if (cell.myCell) {
         return cell.score = 0;
     }
     const distanceToHome = calcManhattanDistance(cell.position, myCastlePos);

@@ -3,8 +3,8 @@ import React from 'react';
 
 import classNames from 'classnames';
 
-const Cell = ({type, treasure, myCell, myCastle, enemyCastle, moveCost, cumulatedCost, route, visibilityGain, score}) => {
-    const cn = classNames(type, {my: myCell, myCastle, enemyCastle, treasure});
+const Cell = ({type, treasure, myCell, myCastle, enemyCastle, moveCost, cumulatedCost, route, routed, visibilityGain, score}) => {
+    const cn = classNames(type, {my: myCell, myCastle, enemyCastle, treasure, routed});
     const cost = v => v >= 100 ? '∞' : v;
 
     const scoreSpan = score !== undefined ? <span className="details score">s:{score.toPrecision(3)}</span> : null;
@@ -26,6 +26,7 @@ Cell.propTypes = {
     myCell: React.PropTypes.bool,
     myCastle: React.PropTypes.bool,
     enemyCastle: React.PropTypes.bool,
+    routed: React.PropTypes.bool,
     moveCost: React.PropTypes.number,
     cumulatedCost: React.PropTypes.number,
     visibilityGain: React.PropTypes.number,

@@ -3,8 +3,9 @@ import assert from 'assert';
 
 import {moveCost} from './cost';
 import {calcScore} from './score';
+import {neighbour} from './neighbour';
 
-export const mergeMaps = (sourceMap, targetMap, offsetX = 0, offsetY = 0) => {
+export const mergeMaps = (sourceMap, targetMap, myPos = null, offsetX = 0, offsetY = 0) => {
     sourceMap.forEach(
         (row, y) => {
             if(!targetMap[offsetY+y]) {
@@ -19,7 +20,8 @@ export const mergeMaps = (sourceMap, targetMap, offsetX = 0, offsetY = 0) => {
                             {}, // don't modify oldCell
                             oldCell ? oldCell : {},
                             {position: {x: offsetX+x, y: offsetY+y},
-                             moveCost: moveCost(c.type, c.enemyCastle)
+                             moveCost: moveCost(c.type, c.enemyCastle),
+                             myCell: (myPos && myPos.x === (offsetX+x) && myPos.y === (offsetY+y))
                             },
                             c);
 
@@ -40,6 +42,7 @@ export const resetCells = (rows, currentCell) => {
     rows.forEach(row => row.forEach(c => {
         if (c) {
             c.cumulatedCost = c.route = c.visibilityGain = undefined;
+            c.routed = false;
         }
     }));
 
@@ -61,4 +64,15 @@ export const findBestCell = (rows, myCastlePos, predicate) => {
     }));
     assert(highscoreCell, 'no highscoreCell found');
     return highscoreCell;
+};
+
+export const markRoute = (rows, currentCell, route) => {
+    currentCell.routed = true;
+
+    let nextCell = currentCell;
+    while (route) {
+        nextCell = neighbour(route[0], nextCell.position, rows);
+        nextCell.routed = true;
+        route = route.slice(1);
+    }
 };

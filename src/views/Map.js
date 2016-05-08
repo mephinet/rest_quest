@@ -8,11 +8,8 @@ const Map = ({map}) => {
         return <span>No map received yet - waiting for 2<sup>nd</sup> player?</span>;
     }
 
-    const myPos = map.get('myPos');
     const rows = map.get('rows').map(
-        (r, pos) =>
-            <Row key={pos} cells={r}
-                 myCell={(myPos && pos === myPos.get('y')) ? myPos.get('x') : undefined} />
+        (r, pos) => <Row key={pos} cells={r} />
     );
     return (<table>
             <tbody>

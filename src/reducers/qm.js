@@ -66,7 +66,7 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
         }
 
         // update 'rows' with received data
-        mergeMaps(data, rows, offsetX, offsetY);
+        mergeMaps(data, rows, myPos, offsetX, offsetY);
 
         // XXX check if we have more than one myCastle to detect wrap
 
@@ -98,7 +98,6 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
             }
 
             const {route, nextCell} = calcStrategy(rows, currentCell, myCastlePos, oldRoute, c => calcVisibilityGain(c, rows));
-
             return state.merge({strategy: {route, remainingStepCost: nextCell.moveCost},
                                 nextPos: Object.assign({cost: nextCell.moveCost}, nextCell.position),
                                 rows: rows
@@ -111,7 +110,8 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
                 return state;
             }
 
-            const {route, nextCell} = calcStrategy(rows, currentCell, myCastlePos, oldRoute, c => c.treasure ? 100 : 0, c => c.treasure);
+            // don't pass oldRoute so that map gets re-evaluated every time
+            const {route, nextCell} = calcStrategy(rows, currentCell, myCastlePos, '', c => c.treasure ? 100 : 0, c => c.treasure);
 
             return state.merge({strategy: {route, remainingStepCost: nextCell.moveCost},
                                 nextPos: Object.assign({cost: nextCell.moveCost}, nextCell.position),

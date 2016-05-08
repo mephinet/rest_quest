@@ -1,4 +1,4 @@
-import {resetCells, findBestCell} from '../algorithms/map';
+import {resetCells, findBestCell, markRoute} from '../algorithms/map';
 import {neighbour} from '../algorithms/neighbour';
 import expand from '../algorithms/expand';
 import fixup from '../algorithms/fixup';
@@ -34,6 +34,8 @@ export const calcStrategy = (rows, currentCell, myCastlePos, oldRoute, calcVisib
         const highscoreCell = findBestCell(rows, myCastlePos, cellPredicate);
         route = highscoreCell.route;
     }
+
+    markRoute(rows, currentCell, route);
 
     const step = route[0];
     const nextCell = neighbour(step, currentCell.position, rows);
