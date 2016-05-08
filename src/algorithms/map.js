@@ -39,7 +39,7 @@ export const mergeMaps = (sourceMap, targetMap, offsetX = 0, offsetY = 0) => {
 export const resetCells = (rows, currentCell) => {
     rows.forEach(row => row.forEach(c => {
         if (c) {
-            c.cumulatedCost = c.route = c.visibilityGain = c.score = undefined;
+            c.cumulatedCost = c.route = c.visibilityGain = undefined;
         }
     }));
 
@@ -51,9 +51,9 @@ export const findBestCell = (rows, myCastlePos, predicate) => {
     let highscore = 0;
     let highscoreCell = null;
     rows.forEach(row => row.forEach(c => {
-        if (c && predicate(c)) {
-            const score = calcScore(c, myCastlePos);
-            if (score > highscore) {
+        if (c) {
+            const score = c.score = calcScore(c, myCastlePos);
+            if (predicate(c) && score > highscore) {
                 highscore = score;
                 highscoreCell = c;
             }

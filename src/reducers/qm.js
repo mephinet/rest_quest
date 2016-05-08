@@ -94,7 +94,6 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
 
             const initial = !oldRoute;
             if (!(initial || stepDone)) {
-                console.log('we still have steps to do, skipping stategy calculation');
                 return state;
             }
 
@@ -107,11 +106,8 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
         }
 
         case phases.GOTOTREASURE: {
-            // XXX if remainingStepCost is 1, do we need to make the
-            // next step even if we want to change direction?
 
             if (!stepDone) {
-                // keep climbing
                 return state;
             }
 
@@ -126,7 +122,6 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
 
         case phases.GOHOME : {
             if (!stepDone) {
-                // keep climbing
                 return state;
             }
             const {route, nextCell} = calcStrategy(rows, currentCell, myCastlePos, oldRoute, c => c.myCastle ? 100 : 0, c => c.myCastle);

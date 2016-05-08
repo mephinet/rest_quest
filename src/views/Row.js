@@ -18,7 +18,7 @@ const Row = ({cells, myCell}) => {
                   score={c.get('score')}
                   myCell={pos === myCell}
             />
-          : <UnknownCell />
+            : <UnknownCell key={pos} />
     );
 
     return (<tr>
