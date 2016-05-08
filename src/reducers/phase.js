@@ -4,7 +4,7 @@ import {Map} from 'immutable';
 import events from '../events';
 import phases from '../phases';
 
-const phase = (state = new Map({phase: phases.DISCOVER, hasTreasure: false}), action) => {
+const phase = (state = new Map({phase: phases.DISCOVER, hasTreasure: false, result: undefined}), action) => {
 
     switch (action.type) {
     case events.PROCESS_VIEW_UPDATE:
@@ -18,6 +18,11 @@ const phase = (state = new Map({phase: phases.DISCOVER, hasTreasure: false}), ac
               phases.DISCOVER;
 
         return state.set('phase', nextPhase);
+    }
+
+    case events.GAME_OVER: {
+        assert(action.result);
+        return state.set('result', action.result);
     }
 
     default:

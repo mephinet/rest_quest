@@ -23,6 +23,9 @@ const processResponse = body => {
     if (data.error) {
         console.error('Server returned error: ' + data.error);
         process.exit(1);
+    } else if (data.game) {
+        console.log(`Game over - ${data.result}!`);
+        store.dispatch({type: events.GAME_OVER, result: data.result});
     } else {
         assert(data.view, body);
 

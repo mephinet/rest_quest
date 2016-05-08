@@ -5,5 +5,6 @@ export default keyMirror(
      PROCESS_VIEW_UPDATE : null,
      CALC_PHASE          : null,
      CALC_STRATEGY       : null,
-     PREPARE_MOVE        : null
+     PREPARE_MOVE        : null,
+     GAME_OVER           : null
     });

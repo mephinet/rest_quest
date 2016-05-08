@@ -4,6 +4,7 @@ import ImmutablePropTypes from 'react-immutable-proptypes';
 import Header from './Header';
 import Map from './Map';
 import Strategy from './Strategy';
+import GameOver from './GameOver';
 
 const App = ({qm, config, phase}) => {
 
@@ -15,18 +16,22 @@ const App = ({qm, config, phase}) => {
                                    remainingStepCost={strategy.get('remainingStepCost')}
                                    phase={phase.get('phase')}
         /> : null;
+    const result = phase.get('result');
+    const g = result ? <GameOver result={result} /> : null;
 
     return (<div>
             {h}
             {m}
             {s}
+            {g}
             </div>);
 };
 
 App.propTypes = {
     qm: ImmutablePropTypes.map.isRequired,
     config: ImmutablePropTypes.map.isRequired,
-    phase: ImmutablePropTypes.map.isRequired
+    phase: ImmutablePropTypes.map.isRequired,
+    result: React.PropTypes.string
 };
 
 export default App;
