@@ -5,11 +5,9 @@ import events from '../events';
 import phases from '../phases';
 import * as consts from '../consts';
 
-import expand from '../algorithms/expand';
-import fixup from '../algorithms/fixup';
-import {mergeMaps, resetCells, findBestCell} from '../algorithms/map';
-import {neighbour} from '../algorithms/neighbour';
-import {setVisibilityGain} from '../algorithms/visibility';
+import {mergeMaps} from '../algorithms/map';
+import {calcVisibilityGain} from '../algorithms/visibility';
+import {calcStrategy} from '../algorithms/routes';
 
 
 const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos: null, strategy: new Map()}), action) => {
@@ -83,6 +81,7 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
         assert(action.phase, 'phase required');
 
         const stepDone = state.getIn(['strategy', 'remainingStepCost']) === 0;
+        const oldRoute = state.getIn(['strategy', 'route'], '');
         const rows = state.get('rows').toJS();
         const myPos = state.get('myPos').toJS();
         assert(rows && myPos, 'state incomplete');
@@ -91,31 +90,15 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
         const currentCell = rows[myPos.y][myPos.x];
 
         switch(action.phase.get('phase')) {
-        case phases.DISCOVER:
-        case phases.GOHOME : { // XXX until implemented
-            const oldRoute = state.getIn(['strategy', 'route'], '');
-            const initial = !oldRoute;
+        case phases.DISCOVER: {
 
+            const initial = !oldRoute;
             if (!(initial || stepDone)) {
                 console.log('we still have steps to do, skipping stategy calculation');
                 return state;
             }
 
-            resetCells(rows, currentCell);
-
-            ['n', 's'].forEach(y => ['e', 'w'].forEach(x => expand(currentCell, rows, y, x)));
-            do { true; } while (fixup(rows));
-
-            rows.forEach(row => row.forEach(c => c && setVisibilityGain(c, rows)));
-
-            let route = oldRoute.slice(1);
-            if (!route) {
-                const highscoreCell = findBestCell(rows, myCastlePos);
-                route = highscoreCell.route;
-            }
-
-            const step = route[0];
-            const nextCell = neighbour(step, myPos, rows);
+            const {route, nextCell} = calcStrategy(rows, currentCell, myCastlePos, oldRoute, c => calcVisibilityGain(c, rows));
 
             return state.merge({strategy: {route, remainingStepCost: nextCell.moveCost},
                                 nextPos: Object.assign({cost: nextCell.moveCost}, nextCell.position),
@@ -132,23 +115,21 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
                 return state;
             }
 
-            // calc new route
-            resetCells(rows, currentCell);
+            const {route, nextCell} = calcStrategy(rows, currentCell, myCastlePos, oldRoute, c => c.treasure ? 100 : 0, c => c.treasure);
 
-            ['n', 's'].forEach(y => ['e', 'w'].forEach(x => expand(currentCell, rows, y, x)));
-            do { true; } while (fixup(rows));
+            return state.merge({strategy: {route, remainingStepCost: nextCell.moveCost},
+                                nextPos: Object.assign({cost: nextCell.moveCost}, nextCell.position),
+                                rows
+                               });
 
-            // set all visibility gains equal, so that nearer treasure wins
-            rows.forEach(row => row.forEach(c => {
-                if (c) {
-                    c.visibilityGain = c.treasure ? 100 : 0;
-                }
-            }));
+        }
 
-            const highscoreTreasure = findBestCell(rows, myCastlePos, c => c.treasure);
-            const route = highscoreTreasure.route;
-            const step = route[0];
-            const nextCell = neighbour(step, myPos, rows);
+        case phases.GOHOME : {
+            if (!stepDone) {
+                // keep climbing
+                return state;
+            }
+            const {route, nextCell} = calcStrategy(rows, currentCell, myCastlePos, oldRoute, c => c.myCastle ? 100 : 0, c => c.myCastle);
 
             return state.merge({strategy: {route, remainingStepCost: nextCell.moveCost},
                                 nextPos: Object.assign({cost: nextCell.moveCost}, nextCell.position),

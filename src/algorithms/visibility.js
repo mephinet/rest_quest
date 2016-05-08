@@ -2,7 +2,7 @@ import {visibility} from '../consts';
 
 const range = (start, end) => [...Array(end - start + 1)].map((_, i) => start + i);
 
-export const setVisibilityGain = (cell, rows) => {
+export const calcVisibilityGain = (cell, rows) => {
     const viewOneDir = visibility[cell.type];
 
     const rowIds = range(cell.position.y - viewOneDir, cell.position.y + viewOneDir);
@@ -23,5 +23,5 @@ export const setVisibilityGain = (cell, rows) => {
             });
         }
     });
-    return cell.visibilityGain = gain;
+    return gain;
 };
