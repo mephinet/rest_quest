@@ -1,4 +1,4 @@
-import * as events from '../events';
+import events from '../events';
 
 import expect from 'expect';
 import {Map} from 'immutable';

@@ -1,12 +1,9 @@
+import keyMirror from 'keymirror';
 
-// XX instead, export one dict using keymirror
-
-export const UPDATE_CONFIG = 'UPDATE_CONFIG';
-
-export const PROCESS_VIEW_UPDATE = 'PROCESS_VIEW_UPDATE';
-
-export const CALC_PHASE = 'CALC_PHASE';
-
-export const CALC_STRATEGY = 'CALC_STRATEGY';
-
-export const PREPARE_MOVE = 'PREPARE_MOVE';
+export default keyMirror(
+    {UPDATE_CONFIG       : null,
+     PROCESS_VIEW_UPDATE : null,
+     CALC_PHASE          : null,
+     CALC_STRATEGY       : null,
+     PREPARE_MOVE        : null
+    });

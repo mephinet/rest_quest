@@ -1,7 +1,7 @@
 import {Map} from 'immutable';
 import assert from 'assert';
 
-import * as events from '../events';
+import events from '../events';
 
 const movement = (state = new Map(), action) => {
     switch (action.type) {

@@ -3,8 +3,8 @@ import {List, Map} from 'immutable';
 import deepFreeze from 'deep-freeze';
 
 import qm from '../reducers/qm';
-import * as events from '../events';
-import * as phases from '../phases';
+import events from '../events';
+import phases from '../phases';
 
 const test = () => {
 

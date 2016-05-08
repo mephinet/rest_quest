@@ -1,8 +1,8 @@
 import assert from 'assert';
 import {Map} from 'immutable';
 
-import * as events from '../events';
-import * as phases from '../phases';
+import events from '../events';
+import phases from '../phases';
 
 const phase = (state = new Map({phase: phases.DISCOVER, hasTreasure: false}), action) => {
 

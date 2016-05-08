@@ -1,9 +1,9 @@
 import assert from 'assert';
 import {Map} from 'immutable';
 
-import * as events from '../events';
+import events from '../events';
+import phases from '../phases';
 import * as consts from '../consts';
-import * as phases from '../phases';
 
 import expand from '../algorithms/expand';
 import fixup from '../algorithms/fixup';

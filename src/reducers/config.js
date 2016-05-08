@@ -1,6 +1,6 @@
 import {Map} from 'immutable';
 
-import * as events from '../events';
+import events from '../events';
 
 const config = (state = Map(), action) => {
     switch (action.type) {

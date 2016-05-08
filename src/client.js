@@ -2,7 +2,7 @@ import "babel-polyfill";
 
 import program from 'commander';
 
-import * as events from './events';
+import events from './events';
 
 import store from './store';
 import startServer from './server';

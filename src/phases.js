@@ -1,5 +1,3 @@
-export const DISCOVER = 'DISCOVER';
+import keyMirror from 'keymirror';
 
-export const GOTOTREASURE = 'GOTOTREASURE';
-
-export const GOHOME = 'GOHOME';
+export default keyMirror({DISCOVER: null, GOTOTREASURE: null, GOHOME: null});

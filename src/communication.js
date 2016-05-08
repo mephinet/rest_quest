@@ -3,7 +3,7 @@ import assert from 'assert';
 
 import store from './store';
 
-import * as events from './events';
+import events from './events';
 
 export const reset = () => {
     const baseurl = store.getState().getIn(['config', 'baseurl']);
