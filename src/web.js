@@ -14,7 +14,10 @@ const socket = io(
 
 socket.on('state',
           state => {
-              render(<App map={fromJS(state.map)} config={fromJS(state.config)} />,
+              render(<App qm={fromJS(state.qm)}
+                     config={fromJS(state.config)}
+                     phase={fromJS(state.phase)}
+                     />,
                      document.getElementById('root')
                     );
           }

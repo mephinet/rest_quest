@@ -31,13 +31,13 @@ const processResponse = body => {
                         username: store.getState().getIn(['config', 'username'])});
 
         store.dispatch({type: events.CALC_PHASE,
-                        rows: store.getState().getIn(['map', 'qm', 'rows'])});
+                        rows: store.getState().getIn(['qm', 'rows'])});
 
         store.dispatch({type: events.CALC_STRATEGY,
-                        phase: store.getState().getIn(['map', 'phase'])});
+                        phase: store.getState().getIn(['phase'])});
 
         store.dispatch({type: events.PREPARE_MOVE,
-                        strategy: store.getState().getIn(["map", "qm", "strategy"])});
+                        strategy: store.getState().getIn(["qm", "strategy"])});
 
         move(store.getState().getIn(['movement', 'step']));
     }
@@ -65,6 +65,7 @@ export const move = (step) => {
     const config = store.getState().get('config');
     const baseurl = config.get('baseurl');
     const player = config.get('username');
+    console.log(`Sending ${step} to server...`);
     request({url: baseurl + '/move/', method: 'POST', form: {player, direction}},
             (error, response, body) => {
                 if(error) {

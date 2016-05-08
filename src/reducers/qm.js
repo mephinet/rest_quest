@@ -7,10 +7,9 @@ import * as consts from '../consts';
 
 import expand from '../algorithms/expand';
 import fixup from '../algorithms/fixup';
-import {mergeMaps} from '../algorithms/map';
+import {mergeMaps, resetCells, findBestCell} from '../algorithms/map';
 import {neighbour} from '../algorithms/neighbour';
 import {setVisibilityGain} from '../algorithms/visibility';
-import {calcScore} from '../algorithms/score';
 
 
 const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos: null, strategy: new Map()}), action) => {
@@ -84,13 +83,15 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
         assert(action.phase, 'phase required');
 
         switch(action.phase.get('phase')) {
-        case phases.DISCOVER: {
+        case phases.DISCOVER:
+        case phases.GOTOTREASURE: // XXX until implemented
+        case phases.GOHOME : { // XXX until implemented
             const oldRoute = state.getIn(['strategy', 'route'], '');
             const stepDone = state.getIn(['strategy', 'remainingStepCost']) === 0;
             const initial = !oldRoute;
 
             if (!(initial || stepDone)) {
-                // we still have steps to do (e.g., climb the mountain)
+                console.log('we still have steps to do, skipping stategy calculation');
                 return state;
             }
 
@@ -98,34 +99,19 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
             const myPos = state.get('myPos').toJS();
             assert(rows && myPos, 'state incomplete');
 
+            const myCastlePos = state.get('myCastlePos').toJS();
+            const currentCell = rows[myPos.y][myPos.x];
+
+            resetCells(rows, currentCell);
+
+            ['n', 's'].forEach(y => ['e', 'w'].forEach(x => expand(currentCell, rows, y, x)));
+            do { true; } while (fixup(rows));
+
+            rows.forEach(row => row.forEach(c => c && setVisibilityGain(c, rows)));
+
             let route = oldRoute.slice(1);
             if (!route) {
-                const myCastlePos = state.get('myCastlePos').toJS();
-                const currentCell = rows[myPos.y][myPos.x];
-
-                // calculate cost and gain of every cell
-                currentCell.cumulatedCost = 0;
-                currentCell.route = '';
-
-                ['n', 's'].forEach(y => ['e', 'w'].forEach(x => expand(currentCell, rows, y, x)));
-                do { true; } while (fixup(rows));
-
-                rows.forEach(row => row.forEach(c => c && setVisibilityGain(c, rows)));
-
-                // find best cell
-                let highscore = 0;
-                let highscoreCell = null;
-                rows.forEach(row => row.forEach(c => {
-                    if (c) {
-                        const score = calcScore(c, myCastlePos);
-                        if (score > highscore) {
-                            highscore = score;
-                            highscoreCell = c;
-                        }
-                    }
-                }));
-                assert(highscoreCell, 'no highscoreCell found');
-
+                const highscoreCell = findBestCell(rows, myCastlePos);
                 route = highscoreCell.route;
             }
 
@@ -137,13 +123,6 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
                                 rows: rows
                                });
         }
-        case phases.GOTOTREASURE:
-            assert(false, 'GOTOTREASURE not yet implemented');
-            return state;
-
-        case phases.GOHOME:
-            assert(false, 'GOHOME not yet implemented');
-            return state;
 
         default:
             return state;

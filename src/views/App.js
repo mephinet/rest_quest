@@ -5,12 +5,16 @@ import Header from './Header';
 import Map from './Map';
 import Strategy from './Strategy';
 
-const App = ({map, config}) => {
-    const strategy = map ? map.getIn(['qm', 'strategy']) : null;
+const App = ({qm, config, phase}) => {
+
+    const strategy = qm ? qm.get('strategy') : null;
 
     const h = <Header username={config.get('username')} />;
-    const m = map ? <Map map={map.get('qm')} /> : null;
-    const s = strategy ? <Strategy highscore={strategy.get('highscore')} route={strategy.get('route')} /> : null;
+    const m = qm ? <Map map={qm} /> : null;
+    const s = strategy ? <Strategy route={strategy.get('route')}
+                                   remainingStepCost={strategy.get('remainingStepCost')}
+                                   phase={phase.get('phase')}
+        /> : null;
 
     return (<div>
             {h}
@@ -20,8 +24,9 @@ const App = ({map, config}) => {
 };
 
 App.propTypes = {
-    map: ImmutablePropTypes.map.isRequired,
-    config: ImmutablePropTypes.map.isRequired
+    qm: ImmutablePropTypes.map.isRequired,
+    config: ImmutablePropTypes.map.isRequired,
+    phase: ImmutablePropTypes.map.isRequired
 };
 
 export default App;
