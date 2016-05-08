@@ -47,11 +47,11 @@ export const resetCells = (rows, currentCell) => {
     currentCell.route = '';
 };
 
-export const findBestCell = (rows, myCastlePos) => {
+export const findBestCell = (rows, myCastlePos, predicate = () => true) => {
     let highscore = 0;
     let highscoreCell = null;
     rows.forEach(row => row.forEach(c => {
-        if (c) {
+        if (c && predicate(c)) {
             const score = calcScore(c, myCastlePos);
             if (score > highscore) {
                 highscore = score;

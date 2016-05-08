@@ -8,8 +8,7 @@ const phase = (state = new Map({phase: phases.DISCOVER, hasTreasure: false}), ac
 
     switch (action.type) {
     case events.PROCESS_VIEW_UPDATE:
-        assert(action.view);
-        return state.update('hasTreasure', t => (t || action.view.treasure));
+        return state.update('hasTreasure', t => (t || action.treasure));
 
     case events.CALC_PHASE: {
         assert(action.rows);

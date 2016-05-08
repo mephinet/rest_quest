@@ -28,6 +28,7 @@ const processResponse = body => {
 
         store.dispatch({type: events.PROCESS_VIEW_UPDATE,
                         view: data.view,
+                        treasure: data.treasure,
                         username: store.getState().getIn(['config', 'username'])});
 
         store.dispatch({type: events.CALC_PHASE,

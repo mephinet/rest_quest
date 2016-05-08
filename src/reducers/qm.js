@@ -82,25 +82,24 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
     case events.CALC_STRATEGY : {
         assert(action.phase, 'phase required');
 
+        const stepDone = state.getIn(['strategy', 'remainingStepCost']) === 0;
+        const rows = state.get('rows').toJS();
+        const myPos = state.get('myPos').toJS();
+        assert(rows && myPos, 'state incomplete');
+
+        const myCastlePos = state.get('myCastlePos').toJS();
+        const currentCell = rows[myPos.y][myPos.x];
+
         switch(action.phase.get('phase')) {
         case phases.DISCOVER:
-        case phases.GOTOTREASURE: // XXX until implemented
         case phases.GOHOME : { // XXX until implemented
             const oldRoute = state.getIn(['strategy', 'route'], '');
-            const stepDone = state.getIn(['strategy', 'remainingStepCost']) === 0;
             const initial = !oldRoute;
 
             if (!(initial || stepDone)) {
                 console.log('we still have steps to do, skipping stategy calculation');
                 return state;
             }
-
-            const rows = state.get('rows').toJS();
-            const myPos = state.get('myPos').toJS();
-            assert(rows && myPos, 'state incomplete');
-
-            const myCastlePos = state.get('myCastlePos').toJS();
-            const currentCell = rows[myPos.y][myPos.x];
 
             resetCells(rows, currentCell);
 
@@ -121,6 +120,39 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
             return state.merge({strategy: {route, remainingStepCost: nextCell.moveCost},
                                 nextPos: Object.assign({cost: nextCell.moveCost}, nextCell.position),
                                 rows: rows
+                               });
+        }
+
+        case phases.GOTOTREASURE: {
+            // XXX if remainingStepCost is 1, do we need to make the
+            // next step even if we want to change direction?
+
+            if (!stepDone) {
+                // keep climbing
+                return state;
+            }
+
+            // calc new route
+            resetCells(rows, currentCell);
+
+            ['n', 's'].forEach(y => ['e', 'w'].forEach(x => expand(currentCell, rows, y, x)));
+            do { true; } while (fixup(rows));
+
+            // set all visibility gains equal, so that nearer treasure wins
+            rows.forEach(row => row.forEach(c => {
+                if (c) {
+                    c.visibilityGain = c.treasure ? 100 : 0;
+                }
+            }));
+
+            const highscoreTreasure = findBestCell(rows, myCastlePos, c => c.treasure);
+            const route = highscoreTreasure.route;
+            const step = route[0];
+            const nextCell = neighbour(step, myPos, rows);
+
+            return state.merge({strategy: {route, remainingStepCost: nextCell.moveCost},
+                                nextPos: Object.assign({cost: nextCell.moveCost}, nextCell.position),
+                                rows
                                });
         }
 
