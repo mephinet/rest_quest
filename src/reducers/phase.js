@@ -1,18 +1,26 @@
+import assert from 'assert';
+import {Map} from 'immutable';
+
 import * as events from '../events';
 import * as phases from '../phases';
 
-const phase = (state = phases.DISCOVER, action) => {
+const phase = (state = new Map({phase: phases.DISCOVER, hasTreasure: false}), action) => {
 
     switch (action.type) {
-    case events.UPDATE_VIEW:
-        if (action.view.treasure) {
-            return phases.GOHOME;
-        } else if (action.view.some(row => row.some(tile => tile.treasure))) {
-            console.warn('Switching phase!');
-            return phases.GOTOTREASURE;
-        } else {
-            return phases.DISCOVER;
-        }
+    case events.PROCESS_VIEW_UPDATE:
+        assert(action.view);
+        return state.update('hasTreasure', t => (t || action.view.treasure));
+
+    case events.CALC_PHASE: {
+        assert(action.rows);
+        const nextPhase =
+              state.get('hasTreasure') ? phases.GOHOME :
+              action.rows.some(row => row.some(cell => cell && cell.get('treasure'))) ? phases.GOTOTREASURE :
+              phases.DISCOVER;
+
+        return state.set('phase', nextPhase);
+    }
+
     default:
         return state;
     }

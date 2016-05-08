@@ -13,6 +13,7 @@
     "browserify": "^13.0.0",
     "classnames": "^2.2.5",
     "commander": "^2.9.0",
+    "deep-freeze": "0.0.1",
     "eslint-plugin-react": "^5.0.1",
     "eslintify": "^2.0.1",
     "expect": "^1.19.0",

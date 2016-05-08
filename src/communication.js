@@ -24,8 +24,21 @@ const processResponse = body => {
         console.error('Server returned error: ' + data.error);
         process.exit(1);
     } else {
-        store.dispatch({type: events.UPDATE_VIEW, view: data.view, username: store.getState().getIn(['config', 'username'])});
-        store.dispatch({type: events.PREPARE_MOVE, strategy: store.getState().getIn(["map", "qm", "strategy"])});
+        assert(data.view, body);
+
+        store.dispatch({type: events.PROCESS_VIEW_UPDATE,
+                        view: data.view,
+                        username: store.getState().getIn(['config', 'username'])});
+
+        store.dispatch({type: events.CALC_PHASE,
+                        rows: store.getState().getIn(['map', 'qm', 'rows'])});
+
+        store.dispatch({type: events.CALC_STRATEGY,
+                        phase: store.getState().getIn(['map', 'phase'])});
+
+        store.dispatch({type: events.PREPARE_MOVE,
+                        strategy: store.getState().getIn(["map", "qm", "strategy"])});
+
         move(store.getState().getIn(['movement', 'step']));
     }
 };

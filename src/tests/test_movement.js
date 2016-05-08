@@ -1,4 +1,3 @@
-import '../store';
 import * as events from '../events';
 
 import expect from 'expect';
@@ -11,8 +10,8 @@ const test = () => {
     expect(movement(undefined, {})).toEqual(new Map());
     expect(movement(new Map({foo: 42}), {type: 'unknown'})).toEqual(new Map({foo: 42}));
 
-    // ignore first UPDATE_VIEW
-    expect(movement(new Map(), {type: events.UPDATE_VIEW})).toEqual(new Map());
+    // ignore first PROCESS_VIEW_UPDATE
+    expect(movement(new Map(), {type: events.PROCESS_VIEW_UPDATE})).toEqual(new Map());
 
     // one step north onto grass
     const strategy1 = new Map({route: 'nxy', remainingCost: 1});
@@ -20,7 +19,7 @@ const test = () => {
     expect(movement(new Map(), {type: events.PREPARE_MOVE, strategy: strategy1})).toEqual(expected1);
 
     // after the move, we're done
-    expect(movement(expected1, {type: events.UPDATE_VIEW})).toEqual(new Map());
+    expect(movement(expected1, {type: events.PROCESS_VIEW_UPDATE})).toEqual(new Map());
 
     // one step west onto a mountain
     const strategy2 = new Map({route: 'wxy', remainingCost: 2});
@@ -29,7 +28,7 @@ const test = () => {
 
     // after the move, we reduce the remaining Cost
     const expected3 = new Map({step: 'w', remainingCost: 1});
-    expect(movement(expected2, {type: events.UPDATE_VIEW})).toEqual(expected3);
+    expect(movement(expected2, {type: events.PROCESS_VIEW_UPDATE})).toEqual(expected3);
 
     // and make another step
     const strategy4 = new Map({route: 'wxy', remainingCost: 1});
@@ -37,7 +36,7 @@ const test = () => {
     expect(movement(expected3, {type: events.PREPARE_MOVE, strategy: strategy4})).toEqual(expected4);
 
     // after two moves, we're done
-    expect(movement(expected3, {type: events.UPDATE_VIEW})).toEqual(new Map());
+    expect(movement(expected3, {type: events.PROCESS_VIEW_UPDATE})).toEqual(new Map());
 };
 
 export default test;

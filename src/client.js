@@ -1,3 +1,5 @@
+import "babel-polyfill";
+
 import program from 'commander';
 
 import * as events from './events';

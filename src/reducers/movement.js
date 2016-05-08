@@ -5,7 +5,7 @@ import * as events from '../events';
 
 const movement = (state = new Map(), action) => {
     switch (action.type) {
-    case events.UPDATE_VIEW: {
+    case events.PROCESS_VIEW_UPDATE: {
         const lastStep = state.get('step');
         const remainingCost = state.get('remainingCost');
         if (!lastStep) {
@@ -23,6 +23,7 @@ const movement = (state = new Map(), action) => {
     }
 
     case events.PREPARE_MOVE: {
+        assert(action.strategy);
         const lastStep = state.get('step');
         if (lastStep) {
             console.log(`Still going ${lastStep}`);
