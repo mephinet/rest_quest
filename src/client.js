@@ -38,16 +38,14 @@ const main = () => {
     if (program.reset) {
         reset();
     }
+    let io;
     if (program.server) {
-        const io = startServer();
+        io = startServer();
         io.on('connection',
               socket => socket.emit('state', store.getState().toJS())
              );
-        store.subscribe(() => {
-            io.emit('state', store.getState().toJS());
-        });
     }
-    login();
+    login(io);
 };
 
 

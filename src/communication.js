@@ -5,6 +5,12 @@ import store from './store';
 
 import events from './events';
 
+export const pushStateToWeb = io => {
+    if (io) {
+        io.emit('state', store.getState().toJS());
+    }
+};
+
 export const reset = () => {
     const baseurl = store.getState().getIn(['config', 'baseurl']);
     request({url: baseurl + '/reset/', method: 'GET'},
@@ -18,7 +24,7 @@ export const reset = () => {
             });
 };
 
-const processResponse = body => {
+const processResponse = (body, io) => {
     const data = JSON.parse(body);
     if (data.error) {
         console.error('Server returned error: ' + data.error);
@@ -26,6 +32,7 @@ const processResponse = body => {
     } else if (data.game) {
         console.log(`Game over - ${data.result}!`);
         store.dispatch({type: events.GAME_OVER, result: data.result});
+        pushStateToWeb(io);
     } else {
         assert(data.view, body);
 
@@ -42,13 +49,13 @@ const processResponse = body => {
 
         store.dispatch({type: events.PREPARE_MOVE,
                         strategy: store.getState().getIn(["qm", "strategy"])});
-
-        move(store.getState().getIn(['movement', 'step']));
+        pushStateToWeb(io);
+        move(store.getState().getIn(['movement', 'step']), io);
     }
 };
 
 
-export const login = () => {
+export const login = io => {
     const config = store.getState().get('config');
     const baseurl = config.get('baseurl');
     const name = config.get('username');
@@ -58,12 +65,12 @@ export const login = () => {
                     console.error(body);
                     process.exit(1);
                 } else {
-                    processResponse(body);
+                    processResponse(body, io);
                 }
             });
 };
 
-export const move = (step) => {
+export const move = (step, io) => {
     const direction = {n: 'up', s: 'down', w: 'left', e: 'right'}[step];
     assert(direction, `Invalid direction: ${step}`);
     const config = store.getState().get('config');
@@ -76,7 +83,7 @@ export const move = (step) => {
                     console.error('move failed' + body);
                     process.exit(1);
                 } else {
-                    processResponse(body);
+                    processResponse(body, io);
                 }
             });
 };
