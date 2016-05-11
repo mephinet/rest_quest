@@ -46,7 +46,8 @@
     "build": "gulp build",
     "watch": "gulp watch",
     "test": "babel-node --presets es2015 src/test.js",
-    "client": "gulp build && node dist/client.js"
+    "client": "gulp build && node dist/client.js",
+    "serve":  "gulp serve"
   },
   "license": "MIT",
   "repository": {

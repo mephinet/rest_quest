@@ -56,7 +56,7 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
             // use old position or old nextPos to calculate offset of received map
             const stepDone = state.getIn(['strategy', 'remainingStepCost']) === 0;
             nextPos = state.get('nextPos').toJS();
-            myPos = stepDone ? Object.assign({}, nextPos) : state.get('myPos').toJS();
+            myPos = stepDone ? {x: nextPos.x, y: nextPos.y} : state.get('myPos').toJS();
             myCastlePos = state.get('myCastlePos').toJS();
 
             offsetX = myPos.x - (data[0].length-1)/2;
