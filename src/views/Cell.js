@@ -7,7 +7,7 @@ const Cell = ({type, treasure, myCell, myCastle, enemyCastle, moveCost, cumulate
     const cn = classNames(type, {my: myCell, myCastle, enemyCastle, treasure, routed});
     const cost = v => v >= 100 ? '∞' : v;
 
-    const scoreSpan = score !== undefined ? <span className="details score">s:{score.toPrecision(3)}</span> : null;
+    const scoreSpan = score != undefined ? <span className="details score">s:{score.toPrecision(3)}</span> : null;
     const routeSpan = route ? <span className="details route">r:{route}</span> : null;
 
     return (<td className={cn}>

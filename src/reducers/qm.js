@@ -18,7 +18,7 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
 
         // build empty array with initial size
         const initialMapSize = action.initialMapSize || consts.initialMapSize;
-        const rows = [...Array(initialMapSize)].map(() => [...Array(initialMapSize)].map(() => undefined));
+        let rows = [...Array(initialMapSize)].map(() => [...Array(initialMapSize)].map(() => undefined));
 
         const username = action.username;
         assert(username, "can't build map without knowing the username");
@@ -41,12 +41,13 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
             )
         );
 
-        let offsetX, offsetY, myPos;
+        let offsetX, offsetY, myPos, myCastlePos, nextPos;
         if (initial) {
             offsetX = offsetY = Math.round((initialMapSize-data.length)/2);
-            myPos = {x: (offsetX + (data[0].length-1)/2),
-                     y: (offsetY + (data.length-1)/2)
-                    };
+            myPos = myCastlePos =
+                {x: (offsetX + (data[0].length-1)/2),
+                 y: (offsetY + (data.length-1)/2)
+                };
         } else {
 
             // merge state into freshly initialized 'rows'
@@ -54,15 +55,39 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
 
             // use old position or old nextPos to calculate offset of received map
             const stepDone = state.getIn(['strategy', 'remainingStepCost']) === 0;
-            const getPosFrom = stepDone ? 'nextPos' : 'myPos';
-            myPos = {x: state.getIn([getPosFrom, 'x']),
-                     y: state.getIn([getPosFrom, 'y'])
-                    };
+            nextPos = state.get('nextPos').toJS();
+            myPos = stepDone ? Object.assign({}, nextPos) : state.get('myPos').toJS();
+            myCastlePos = state.get('myCastlePos').toJS();
 
             offsetX = myPos.x - (data[0].length-1)/2;
             offsetY = myPos.y - (data.length-1)/2;
 
-            assert(offsetX >= 0 && offsetY >= 0, 'offset is negative, we need to pan the map - NYI');
+            if (offsetX < 0) {
+                console.log(`Adding ${-offsetX} column(s) on the left`);
+                rows = rows.map(r => [...Array(-offsetX)].concat(r));
+                rows.forEach(r => r.forEach(cell => {
+                    if (cell) {
+                        cell.position.x -= offsetX;
+                    }
+                }));
+                myPos.x -= offsetX;
+                myCastlePos.x -= offsetX;
+                nextPos.x -= offsetX;
+                offsetX = 0;
+            }
+            if (offsetY < 0) {
+                console.log(`Adding ${-offsetY} row(s) on the top`);
+                rows = [...Array(-offsetY)].map(() => []).concat(rows);
+                rows.forEach(r => r.forEach(cell => {
+                    if(cell) {
+                        cell.position.y -= offsetY;
+                    }
+                }));
+                myPos.y -= offsetY;
+                myCastlePos.y -= offsetY;
+                nextPos.y -= offsetY;
+                offsetY = 0;
+            }
         }
 
         // update 'rows' with received data
@@ -70,10 +95,7 @@ const qm = (state = new Map({rows: null, myPos: null, nextPos: null, myCastlePos
 
         // XXX check if we have more than one myCastle to detect wrap
 
-        const update = {rows: rows, myPos: myPos};
-        if (initial) {
-            update.myCastlePos = myPos;
-        }
+        const update = {rows, myPos, myCastlePos, nextPos};
         return state.merge(update);
     }
 
