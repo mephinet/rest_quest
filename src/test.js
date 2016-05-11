@@ -1,3 +1,5 @@
+import "babel-polyfill";
+
 import test_movement from './tests/test_movement';
 import test_qm from './tests/test_qm';
 

@@ -27,6 +27,7 @@ const test = () => {
         type: "grass",
         myCastle: true,
         enemyCastle: false,
+        myCell: true,
         moveCost: 1,
         position: new Map({x: 3, y: 3})
     });
